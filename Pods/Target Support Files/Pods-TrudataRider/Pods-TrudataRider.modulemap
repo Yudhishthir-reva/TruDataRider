@@ -1,0 +1,6 @@
+framework module Pods_TrudataRider {
+  umbrella header "Pods-TrudataRider-umbrella.h"
+
+  export *
+  module * { export * }
+}

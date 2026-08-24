@@ -103,6 +103,30 @@ enum JSONValue: Decodable {
         return nil
     }
 
+    func value(for keys: String...) -> JSONValue? {
+        for key in keys {
+            if let value = self[key] { return value }
+        }
+        return nil
+    }
+
+    func int(for keys: String...) -> Int {
+        for key in keys {
+            if let value = self[key] { return value.intValue }
+        }
+        return 0
+    }
+
+    func string(for keys: String...) -> String {
+        for key in keys {
+            if let value = self[key] {
+                let text = value.stringValue
+                if !text.isEmpty { return text }
+            }
+        }
+        return ""
+    }
+
     func nestedInt(in containers: [String], keys: [String]) -> Int {
         for container in containers {
             guard let nested = self[container] else { continue }

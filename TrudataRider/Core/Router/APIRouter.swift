@@ -35,6 +35,7 @@ enum APIRouter: RouterManagable {
     case beatWiseArrangeSellers
     case orderApprovalRequest
     case sellerProfile2
+    case sellerProfile
     case colorList
     case updateSellerColor
     case sellerOrderList
@@ -119,11 +120,19 @@ enum APIRouter: RouterManagable {
     case getRegisteredSellers
     case teamWiseAttendanceList
     case teamWiseLocationList
+    case orderAssignByRiderList
+    case orderStatusUpdate
+    case orderStartDelivery
+    case orderDelivery
+    case riderDeliveryHistory
+    case riderTravelHistory
+    case vehiclePunchInOut
+    case vehiclePunchHistory
 
     var endPointUrl: String {
         switch self {
         case .loginUser:
-            return "login-user"
+            return "login-rider"
         case .homeV2:
             return "V2/home3"
         case .logout:
@@ -182,6 +191,8 @@ enum APIRouter: RouterManagable {
             return "order-approval-request"
         case .sellerProfile2:
             return "seller-Profile2"
+        case .sellerProfile:
+            return "seller-Profile"
         case .colorList:
             return "color-list"
         case .updateSellerColor:
@@ -193,9 +204,9 @@ enum APIRouter: RouterManagable {
         case .paymentSave:
             return "payment-save"
         case .paymentBillList:
-            return "payment-bill-list"
+            return "payment-bill-list-by-rider"
         case .paymentSettlement:
-            return "payment-settlement"
+            return "payment-settlement-by-rider"
         case .brandList:
             return "brand-list"
         case .topSellingProductsSuggestion:
@@ -350,6 +361,22 @@ enum APIRouter: RouterManagable {
             return "team-wise-attendance-list"
         case .teamWiseLocationList:
             return "team-wise-location-list"
+        case .orderAssignByRiderList:
+            return "order-assign-by-rider-list"
+        case .orderStatusUpdate:
+            return "order-status-update"
+        case .orderStartDelivery:
+            return "order-start-delivery"
+        case .orderDelivery:
+            return "order-delivery"
+        case .riderDeliveryHistory:
+            return "rider-delivery-history"
+        case .riderTravelHistory:
+            return "rider-history"
+        case .vehiclePunchInOut:
+            return "rider-vehicle-in-out"
+        case .vehiclePunchHistory:
+            return "rider-vehicle-in-out-history"
         }
     }
 
@@ -357,7 +384,7 @@ enum APIRouter: RouterManagable {
         switch self {
         case .updateSellerColor, .addProductSpecialPrice, .addCartForEdit, .createOrderForEdit, .addCart, .createOrder:
             return .json
-        case .paymentSave, .paymentSettlement, .shopLocationVisited, .addSeller, .updateSeller, .productSave, .productUpdate, .addStaff, .addExpense:
+        case .paymentSave, .paymentSettlement, .shopLocationVisited, .addSeller, .updateSeller, .productSave, .productUpdate, .addStaff, .addExpense, .vehiclePunchInOut:
             return .multipartForm
         default:
             return .urlEncoded

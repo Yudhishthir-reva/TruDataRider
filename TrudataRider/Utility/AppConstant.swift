@@ -6,13 +6,13 @@
 import Foundation
 
 enum APIBaseURL {
-    static let production = "https://trudataa.com/864963/api/"
+    static let production = "https://trudataa.com/api/"
     static let staging = "https://spicemonk.revateam.com/api/"
 }
 
 let BASE_URL = APIBaseURL.production
 
-let currentEnvironment: RequestEnvironmentType = .production
+let currentEnvironment: RequestEnvironmentType = .stagging
 
 let kDateFormatterHHMMA: DateFormatter = {
     let dateFormatter = DateFormatter()

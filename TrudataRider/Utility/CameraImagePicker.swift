@@ -8,13 +8,18 @@ import UIKit
 
 struct CameraImagePicker: UIViewControllerRepresentable {
 
+    var preferRearCamera: Bool = false
     var onImageCaptured: (UIImage) -> Void
     var onCancel: () -> Void
 
     func makeUIViewController(context: Context) -> UIImagePickerController {
         let picker = UIImagePickerController()
         picker.sourceType = UIImagePickerController.isSourceTypeAvailable(.camera) ? .camera : .photoLibrary
-        picker.cameraDevice = .front
+        if picker.sourceType == .camera {
+            picker.cameraDevice = preferRearCamera && UIImagePickerController.isCameraDeviceAvailable(.rear)
+                ? .rear
+                : .front
+        }
         picker.delegate = context.coordinator
         picker.allowsEditing = false
         return picker

@@ -11,6 +11,10 @@ struct LocationSnapshot {
     let latitude: Double
     let longitude: Double
     let address: String
+
+    var coordinateString: String {
+        "\(latitude), \(longitude)"
+    }
 }
 
 final class LocationHelper: NSObject, ObservableObject {
