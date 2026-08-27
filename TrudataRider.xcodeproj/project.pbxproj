@@ -108,6 +108,7 @@
 		C5F56D3E303828B400C077F1 /* RiderOrdersScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F56D19303828B400C077F1 /* RiderOrdersScreen.swift */; };
 		C5F56D3E3038510B00C077F1 /* SupportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F56D3D3038510B00C077F1 /* SupportView.swift */; };
 		C5F56D3F303828B400C077F1 /* RiderOrderCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F56D1A303828B400C077F1 /* RiderOrderCard.swift */; };
+		C5F56D41303828B400C077F1 /* DistanceAlertModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F56D1B303828B400C077F1 /* DistanceAlertModalView.swift */; };
 		C5F56D403038511F00C077F1 /* SupportServiceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F56D3F3038511F00C077F1 /* SupportServiceManager.swift */; };
 		C9B884638AEF43E6BFA8B5D7 /* AddRegularizationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 179C01D5308442C98AB48405 /* AddRegularizationViewModel.swift */; };
 		CA182738B5074A408EEAD649 /* AttendanceCommonViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF05E419FBEF4E2BA56AF5E9 /* AttendanceCommonViews.swift */; };
@@ -198,6 +199,7 @@
 		C5F56D19303828B400C077F1 /* RiderOrdersScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiderOrdersScreen.swift; sourceTree = "<group>"; };
 		C5F56D1930383F6600C077F1 /* TravelHistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TravelHistoryView.swift; sourceTree = "<group>"; };
 		C5F56D1A303828B400C077F1 /* RiderOrderCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RiderOrderCard.swift; sourceTree = "<group>"; };
+		C5F56D1B303828B400C077F1 /* DistanceAlertModalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DistanceAlertModalView.swift; sourceTree = "<group>"; };
 		C5F56D1B30383F7900C077F1 /* TravelHistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TravelHistoryViewModel.swift; sourceTree = "<group>"; };
 		C5F56D1D30383F8900C077F1 /* TravelHistoryServiceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TravelHistoryServiceManager.swift; sourceTree = "<group>"; };
 		C5F56D20303843DE00C077F1 /* VehicleManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VehicleManagementView.swift; sourceTree = "<group>"; };
@@ -456,6 +458,7 @@
 				C5F56D0C303828B400C077F1 /* RiderOrdersViewModel.swift */,
 				C5F56D19303828B400C077F1 /* RiderOrdersScreen.swift */,
 				C5F56D1A303828B400C077F1 /* RiderOrderCard.swift */,
+				C5F56D1B303828B400C077F1 /* DistanceAlertModalView.swift */,
 			);
 			path = Orders;
 			sourceTree = "<group>";
@@ -707,6 +710,7 @@
 				C5F56D10303828B400C077F1 /* RiderOrdersViewModel.swift in Sources */,
 				C5F56D3E303828B400C077F1 /* RiderOrdersScreen.swift in Sources */,
 				C5F56D3F303828B400C077F1 /* RiderOrderCard.swift in Sources */,
+				C5F56D41303828B400C077F1 /* DistanceAlertModalView.swift in Sources */,
 				C5F56D373038160000C077F1 /* DashboardViewModel.swift in Sources */,
 				C5F56D383038160000C077F1 /* DashboardServiceManager.swift in Sources */,
 				C5F56D393038160000C077F1 /* DashboardModels.swift in Sources */,

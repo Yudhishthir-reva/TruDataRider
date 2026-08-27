@@ -19,6 +19,8 @@ class RiderOrdersViewModel: ObservableObject {
     @Published var collectedOrders: [RiderOrder] = []
     @Published var toDeliverOrders: [RiderOrder] = []
     @Published var deliveredOrders: [RiderOrder] = []
+    @Published var pendingDeliveryOrder: RiderOrder?
+    @Published var pendingDeliveryDistanceText: String = ""
 
     private var cancellables = Set<AnyCancellable>()
     private let service = RiderOrdersServiceManager()
@@ -108,6 +110,51 @@ class RiderOrdersViewModel: ObservableObject {
                 }
                 .store(in: &cancellables)
         }
+    }
+
+    func handleDeliverSlide(order: RiderOrder) {
+        guard updatingOrderId == nil else { return }
+
+        // Check distance if coordinates are available
+        if let snapshot = locationHelper.snapshot {
+            let riderCoord = CLLocationCoordinate2D(latitude: snapshot.latitude, longitude: snapshot.longitude)
+            if let meters = order.distanceInMeters(from: riderCoord), meters > 100 {
+                pendingDeliveryDistanceText = order.formattedDistance(from: riderCoord)
+                pendingDeliveryOrder = order
+                return
+            }
+        } else if order.coordinate != nil {
+            // Try quick location check
+            resolveLocation { [weak self] _ in
+                guard let self else { return }
+                if let snapshot = self.locationHelper.snapshot {
+                    let riderCoord = CLLocationCoordinate2D(latitude: snapshot.latitude, longitude: snapshot.longitude)
+                    if let meters = order.distanceInMeters(from: riderCoord), meters > 100 {
+                        self.pendingDeliveryDistanceText = order.formattedDistance(from: riderCoord)
+                        self.pendingDeliveryOrder = order
+                        return
+                    }
+                }
+                self.markDelivered(order)
+            }
+            return
+        }
+
+        markDelivered(order)
+    }
+
+    func confirmDeliverAnyway() {
+        guard let order = pendingDeliveryOrder else { return }
+        pendingDeliveryOrder = nil
+        markDelivered(order)
+    }
+
+    func cancelDistanceAlert() {
+        pendingDeliveryOrder = nil
+    }
+
+    func markSellerNotAvailable(_ order: RiderOrder) {
+        toastMessage = "Seller for \(order.shopName) marked not available."
     }
 
     func markDelivered(_ order: RiderOrder) {

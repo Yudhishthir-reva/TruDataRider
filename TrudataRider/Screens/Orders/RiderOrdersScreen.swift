@@ -28,6 +28,20 @@ struct RiderOrdersScreen: View {
                 tabBar
                 content
             }
+
+            if let pendingOrder = viewModel.pendingDeliveryOrder {
+                DistanceAlertModalView(
+                    shopName: pendingOrder.shopName,
+                    distanceText: viewModel.pendingDeliveryDistanceText,
+                    onCancel: {
+                        viewModel.cancelDistanceAlert()
+                    },
+                    onDeliverAnyway: {
+                        viewModel.confirmDeliverAnyway()
+                    }
+                )
+                .zIndex(999)
+            }
         }
         .toolbar(.hidden, for: .navigationBar)
         .onAppear { viewModel.loadOrders() }
@@ -143,9 +157,20 @@ struct RiderOrdersScreen: View {
                                 emptyState("No awaiting orders.")
                             }
                         case .toDeliver:
-                            ForEach(viewModel.toDeliverOrders) { order in
-                                RiderOrderCard(order: order, isUpdating: viewModel.updatingOrderId == order.orderId) {
-                                    viewModel.markDelivered(order)
+                            if viewModel.toDeliverOrders.isEmpty {
+                                emptyState("No orders to deliver.")
+                            } else {
+                                ForEach(viewModel.toDeliverOrders) { order in
+                                    RiderOrderCard(
+                                        order: order,
+                                        isUpdating: viewModel.updatingOrderId == order.orderId,
+                                        onPrimaryAction: {
+                                            viewModel.handleDeliverSlide(order: order)
+                                        },
+                                        onMarkNotAvailable: {
+                                            viewModel.markSellerNotAvailable(order)
+                                        }
+                                    )
                                 }
                             }
                         case .completed:
@@ -216,24 +241,26 @@ struct SlideToActionBar: View {
 
     var body: some View {
         GeometryReader { geo in
-            let maxDrag = max(geo.size.width - 66, 1)
+            let buttonSize: CGFloat = 48
+            let maxDrag = max(geo.size.width - buttonSize - 10, 1)
             ZStack(alignment: .leading) {
                 Capsule()
-                    .fill(OrderListTheme.buttonBlue.opacity(0.12))
+                    .fill(Color(red: 0.89, green: 0.93, blue: 0.98))
+
                 Text(isLoading ? "Please wait..." : title)
                     .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(OrderListTheme.buttonBlue)
+                    .foregroundStyle(OrderListTheme.appBlue)
                     .frame(maxWidth: .infinity)
 
                 Circle()
-                    .fill(OrderListTheme.buttonBlue)
-                    .frame(width: 54, height: 54)
+                    .fill(OrderListTheme.appBlue)
+                    .frame(width: buttonSize, height: buttonSize)
                     .overlay {
                         if isLoading {
                             ProgressView().tint(.white)
                         } else {
                             Image(systemName: "arrow.right")
-                                .font(.system(size: 20, weight: .bold))
+                                .font(.system(size: 18, weight: .bold))
                                 .foregroundStyle(.white)
                         }
                     }
@@ -245,16 +272,18 @@ struct SlideToActionBar: View {
                                 dragOffset = min(max(0, value.translation.width), maxDrag)
                             }
                             .onEnded { _ in
-                                if dragOffset > maxDrag * 0.7 {
+                                if dragOffset > maxDrag * 0.65 {
                                     dragOffset = maxDrag
                                     onComplete()
                                 }
-                                withAnimation(.spring()) { dragOffset = 0 }
+                                withAnimation(.spring(response: 0.35, dampingFraction: 0.75)) {
+                                    dragOffset = 0
+                                }
                             }
                     )
             }
-            .padding(6)
+            .padding(5)
         }
-        .frame(height: 66)
+        .frame(height: 58)
     }
 }

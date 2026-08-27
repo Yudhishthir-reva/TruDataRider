@@ -17,13 +17,15 @@ enum RiderOrderStatus: String {
         switch self {
         case .assign: return "To Pick Up"
         case .pickup: return "Collected"
-        case .toDeliver: return "To Deliver"
+        case .toDeliver: return "Out for Delivery"
         case .delivered: return "Delivered"
         case .cancelled: return "Cancelled"
         case .returned: return "Returned"
         }
     }
 }
+
+import CoreLocation
 
 struct RiderOrder: Identifiable {
     var id: String { orderId }
@@ -51,6 +53,31 @@ struct RiderOrder: Identifiable {
         let value = distance.trim
         if value.isEmptyString || value.uppercased() == "N/A" { return "" }
         return value.lowercased().contains("km") ? value : "\(value) Km"
+    }
+
+    var coordinate: CLLocationCoordinate2D? {
+        guard let lat = Double(latitude), let lng = Double(longitude), lat != 0 || lng != 0 else {
+            return nil
+        }
+        return CLLocationCoordinate2D(latitude: lat, longitude: lng)
+    }
+
+    func distanceInMeters(from riderCoord: CLLocationCoordinate2D) -> Double? {
+        guard let coord = coordinate else { return nil }
+        let riderLoc = CLLocation(latitude: riderCoord.latitude, longitude: riderCoord.longitude)
+        let orderLoc = CLLocation(latitude: coord.latitude, longitude: coord.longitude)
+        return riderLoc.distance(from: orderLoc)
+    }
+
+    func formattedDistance(from riderCoord: CLLocationCoordinate2D) -> String {
+        if let meters = distanceInMeters(from: riderCoord) {
+            if meters < 1000 {
+                return "\(Int(round(meters)))m"
+            } else {
+                return String(format: "%.1f Km", meters / 1000.0)
+            }
+        }
+        return displayDistance.isEmptyString ? "some distance" : displayDistance
     }
 
     var salesPersonName: String? {
