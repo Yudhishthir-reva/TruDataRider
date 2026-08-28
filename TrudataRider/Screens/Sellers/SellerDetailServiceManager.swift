@@ -36,7 +36,7 @@ struct SellerProfileDetail {
     }
 
     var mailURL: URL? {
-        guard !email.isEmptyString else { return nil }
+        guard !email.isEmptyString, email.isValidEmail() else { return nil }
         return URL(string: "mailto:\(email.trim)")
     }
 

@@ -23,10 +23,13 @@ struct AuthScreen: View {
                         ),
                         placeholder: "Enter your phone number",
                         isError: viewModel.mobileError != nil,
+                        errorText: viewModel.mobileError,
                         isEnabled: viewModel.isFieldEnabled,
                         keyboardType: .numberPad,
                         textContentType: .telephoneNumber,
-                        submitLabel: .next
+                        submitLabel: .next,
+                        maxCharacters: 10,
+                        isPhoneNumber: true
                     )
 
                     InputField(
@@ -70,7 +73,9 @@ struct AuthScreen: View {
                 .padding(.horizontal, 24)
                 .padding(.bottom, 12)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.white.ignoresSafeArea())
+        .ignoresSafeArea(.keyboard)
         .ignoresSafeArea(edges: .top)
         .toolbar(.hidden, for: .navigationBar)
     }

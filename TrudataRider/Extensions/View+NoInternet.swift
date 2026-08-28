@@ -39,4 +39,22 @@ extension View {
     func handleNoInternet() -> some View {
         modifier(NoInternetModifier())
     }
+
+    func hideKeyboard() {
+        UIApplication.shared.hideKeyboard()
+    }
+
+    func dismissKeyboardOnTap() -> some View {
+        simultaneousGesture(
+            TapGesture().onEnded { _ in
+                UIApplication.shared.hideKeyboard()
+            }
+        )
+    }
+}
+
+extension UIApplication {
+    func hideKeyboard() {
+        sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
 }

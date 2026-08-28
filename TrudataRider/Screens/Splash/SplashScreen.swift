@@ -17,7 +17,7 @@ struct SplashScreen: View {
                 .scaleEffect(logoScale)
                 .rotationEffect(.degrees(logoRotation))
         }
-        .preferredColorScheme(.dark)
+        .preferredColorScheme(.light)
         .onAppear(perform: runEntrance)
     }
 
@@ -31,9 +31,9 @@ struct SplashScreen: View {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.15) {
             if UserDefaultManager.shared.isUserLoggedIn {
-                AppRootManager.shared.setRootView(view: HomeScreen())
+                AppRootManager.shared.switchToHome()
             } else {
-                AppRootManager.shared.setRootView(view: AuthScreen())
+                AppRootManager.shared.switchToAuth()
             }
         }
     }

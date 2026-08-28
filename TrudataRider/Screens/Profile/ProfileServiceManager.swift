@@ -43,7 +43,7 @@ struct UserProfileDetail: Equatable {
     }
 
     var mailURL: URL? {
-        guard !email.isEmptyString, email != "-" else { return nil }
+        guard !email.isEmptyString, email != "-", email.isValidEmail() else { return nil }
         return URL(string: "mailto:\(email.trim)")
     }
 

@@ -5,47 +5,47 @@
 
 import SwiftUI
 
-private struct FloatingStar {
-    let baseX: Double
-    let baseY: Double
-    let speed: Double
-    let alpha: Double
-    let size: CGFloat
-    let diagonalRatio: Double
+private struct StarInfo {
+    var initialX: Double
+    var initialY: Double
+    var alpha: Double
+    var speed: Double
 }
 
 struct AuthHeader: View {
     var title: String = "Welcome to\nTruDataa Rider"
     var subtitle: String = "Pack and Deliver with Ease"
+    @State private var animatedAlpha: CGFloat = 0.0
 
-    @State private var startDate = Date()
-    @State private var contentOpacity: Double = 0.0
-
-    private static let stars: [FloatingStar] = (0..<50).map { i in
-        let seed = Double(i)
-        // Deterministic pseudo-random distribution
-        let baseX = (seed * 0.173 + 0.05).truncatingRemainder(dividingBy: 1.0)
-        let baseY = (seed * 0.281 + 0.08).truncatingRemainder(dividingBy: 1.0)
-        // Individual speeds in 0.0001 - 0.0003 range
-        let speed = 0.0001 + ((seed * 7.91).truncatingRemainder(dividingBy: 1.0)) * 0.0002
-        // Alpha opacities in 0.1 - 0.7 range
-        let alpha = 0.1 + ((seed * 13.37).truncatingRemainder(dividingBy: 1.0)) * 0.6
-        let size: CGFloat = 1.5 + CGFloat((seed * 3.14).truncatingRemainder(dividingBy: 1.0)) * 1.5
-        let diagonalRatio = 0.35 + ((seed * 5.21).truncatingRemainder(dividingBy: 1.0)) * 0.35
-
-        return FloatingStar(
-            baseX: baseX,
-            baseY: baseY,
-            speed: speed,
-            alpha: alpha,
-            size: size,
-            diagonalRatio: diagonalRatio
-        )
+    // Fixed dimensions taaki keyboard aane par bilkul na hile ya shrink ho
+    private let headerHeight: CGFloat = 280
+    private var screenWidth: CGFloat {
+        UIScreen.main.bounds.width
     }
+
+    private let stars: [StarInfo] = {
+        var result: [StarInfo] = []
+        var seed: UInt64 = 123456789
+        func nextRandom() -> Double {
+            seed = (1103515245 * seed + 12345) & 0x7FFFFFFF
+            return Double(seed) / Double(0x7FFFFFFF)
+        }
+        for _ in 0..<50 {
+            let x = nextRandom()
+            let y = nextRandom()
+            let rawAlpha = nextRandom()
+            let alpha = max(0.1, min(0.7, rawAlpha))
+            let speed = nextRandom() * 0.0002 + 0.0001
+            result.append(StarInfo(initialX: x, initialY: y, alpha: alpha, speed: speed))
+        }
+        return result
+    }()
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {
+            Color(hex: "0F2C42")
             starfield
+                .opacity(animatedAlpha)
 
             VStack(alignment: .leading, spacing: 16) {
                 Text(title)
@@ -60,46 +60,44 @@ struct AuthHeader: View {
             .padding(.horizontal, 20)
             .padding(.bottom, 32)
         }
-        .frame(maxWidth: .infinity)
-        .aspectRatio(1.5, contentMode: .fit)
+        .frame(width: screenWidth, height: headerHeight)
         .clipped()
-        .opacity(contentOpacity)
         .onAppear {
-            startDate = Date()
             withAnimation(.easeInOut(duration: 1.0)) {
-                contentOpacity = 1.0
+                animatedAlpha = 1.0
             }
         }
     }
 
     private var starfield: some View {
-        TimelineView(.animation) { timeline in
-            let timeMs = timeline.date.timeIntervalSince(startDate) * 1000.0
-            Canvas { context, size in
-                // Space Theme Background #0F2C42
-                let bgRect = CGRect(origin: .zero, size: size)
-                context.fill(Path(bgRect), with: .color(Color(hex: "0F2C42")))
+        let width = screenWidth
+        let height = headerHeight
+        return TimelineView(.animation) { timeline in
+            let time = timeline.date.timeIntervalSinceReferenceDate
+            Canvas { context, _ in
+                // 1. Space background
+                context.fill(Path(CGRect(x: 0, y: 0, width: width, height: height)), with: .color(Color(hex: "0F2C42")))
 
-                // 8x8 Grid lines #1A4668
+                // 2. 8x8 Grid lines
                 let gridColor = Color(hex: "1A4668")
                 let lines = 8
-                let stepX = size.width / CGFloat(lines)
-                let stepY = size.height / CGFloat(lines)
+                let stepX = width / CGFloat(lines)
+                let stepY = height / CGFloat(lines)
                 for i in 1..<lines {
                     var vertical = Path()
                     vertical.move(to: CGPoint(x: CGFloat(i) * stepX, y: 0))
-                    vertical.addLine(to: CGPoint(x: CGFloat(i) * stepX, y: size.height))
+                    vertical.addLine(to: CGPoint(x: CGFloat(i) * stepX, y: height))
                     context.stroke(vertical, with: .color(gridColor), lineWidth: 1)
 
                     var horizontal = Path()
                     horizontal.move(to: CGPoint(x: 0, y: CGFloat(i) * stepY))
-                    horizontal.addLine(to: CGPoint(x: size.width, y: CGFloat(i) * stepY))
+                    horizontal.addLine(to: CGPoint(x: width, y: CGFloat(i) * stepY))
                     context.stroke(horizontal, with: .color(gridColor), lineWidth: 1)
                 }
 
-                // Diagonal Halo Glow: Top-right quadrant (75% width, 25% height)
-                let haloCenter = CGPoint(x: size.width * 0.75, y: size.height * 0.25)
-                let haloRadius = max(size.width, size.height) * 0.7
+                // 3. Diagonal Halo Glow Effect (Top-right quadrant)
+                let haloCenter = CGPoint(x: width * 0.75, y: height * 0.25)
+                let haloRadius = width * 0.6
                 let haloRect = CGRect(
                     x: haloCenter.x - haloRadius,
                     y: haloCenter.y - haloRadius,
@@ -109,41 +107,36 @@ struct AuthHeader: View {
                 context.fill(
                     Path(ellipseIn: haloRect),
                     with: .radialGradient(
-                        Gradient(colors: [
-                            Color.white.opacity(0.20),
-                            Color(hex: "1A4668").opacity(0.15),
-                            Color.clear
-                        ]),
+                        Gradient(colors: [Color.white.opacity(0.2), .clear]),
                         center: haloCenter,
                         startRadius: 0,
                         endRadius: haloRadius
                     )
                 )
 
-                // 50 Floating Space Stars (Continuous 60/120 FPS Animation)
-                for star in Self.stars {
-                    var x = star.baseX + timeMs * (star.speed * star.diagonalRatio)
-                    var y = star.baseY + timeMs * star.speed
-
-                    // Boundary wrap-around
-                    x = x.truncatingRemainder(dividingBy: 1.0)
-                    if x < 0 { x += 1.0 }
-                    y = y.truncatingRemainder(dividingBy: 1.0)
-                    if y < 0 { y += 1.0 }
+                // 4. Floating Stars animation
+                let elapsedFrames = time * 60.0
+                for star in stars {
+                    var curY = (star.initialY + star.speed * elapsedFrames).truncatingRemainder(dividingBy: 1.0)
+                    var curX = (star.initialX + (star.speed / 2.0) * elapsedFrames).truncatingRemainder(dividingBy: 1.0)
+                    if curY < 0 { curY += 1.0 }
+                    if curX < 0 { curX += 1.0 }
 
                     let starRect = CGRect(
-                        x: x * size.width,
-                        y: y * size.height,
-                        width: star.size,
-                        height: star.size
+                        x: curX * width - 1.0,
+                        y: curY * height - 1.0,
+                        width: 2.2,
+                        height: 2.2
                     )
                     context.fill(
                         Path(ellipseIn: starRect),
-                        with: .color(.white.opacity(star.alpha))
+                        with: .color(Color.white.opacity(star.alpha))
                     )
                 }
             }
+            .frame(width: width, height: height)
         }
+        .frame(width: width, height: height)
     }
 }
 

@@ -73,7 +73,7 @@ class AuthViewModel: ObservableObject {
                     defaults.setUserDefaultsString(value: model.role ?? "", key: .userRole)
                     defaults.setUserDefaultsString(value: self.mobile, key: .userMobile)
                     defaults.setUserDefaultsBool(value: true, key: .locationServiceEnabled)
-                    AppRootManager.shared.setRootView(view: HomeScreen())
+                    AppRootManager.shared.switchToHome()
                 } else {
                     let message = model.message.first ?? "Unable to log in."
                     self.mobileError = message
@@ -84,8 +84,13 @@ class AuthViewModel: ObservableObject {
     }
 
     private func validate() -> Bool {
-        if mobile.isEmpty || mobile.count < 10 {
-            mobileError = "Mobile number is invalid or empty"
+        let trimmedMobile = mobile.trim
+        if trimmedMobile.isEmpty {
+            mobileError = "Mobile number cannot be empty"
+            return false
+        }
+        if trimmedMobile.count != 10 || !trimmedMobile.isValidIndianMobileNumber() {
+            mobileError = "Please enter a valid 10-digit mobile number"
             return false
         }
         if password.isEmpty || password.count < 6 {

@@ -132,7 +132,7 @@ class DashboardViewModel: ObservableObject {
     private func finishLogout() {
         isLoggingOut = false
         UserDefaultManager.shared.resetUserData()
-        AppRootManager.shared.setRootView(view: AuthScreen())
+        AppRootManager.shared.switchToAuth()
     }
 
     private func fetchLocationConfig() {

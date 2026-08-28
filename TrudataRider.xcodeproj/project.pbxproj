@@ -35,6 +35,7 @@
 		A911484871504026AC42EDE1 /* SlideToConfirmView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B23324CA5AA843E88DB572FF /* SlideToConfirmView.swift */; };
 		B08B5B1EB89245A19D020686 /* AttendanceDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C35FA26193B24335A9D860A2 /* AttendanceDetailSheet.swift */; };
 		C5F56CE53038140E00C077F1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C5F56CE23038140E00C077F1 /* Assets.xcassets */; };
+		C5F56D993038990000C077F1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C5F56D983038990000C077F1 /* LaunchScreen.storyboard */; };
 		C5F56CE63038140E00C077F1 /* JSONValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F56CC13038140E00C077F1 /* JSONValue.swift */; };
 		C5F56CE73038140E00C077F1 /* LenientDecoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F56CC23038140E00C077F1 /* LenientDecoding.swift */; };
 		C5F56CE83038140E00C077F1 /* NetworkServiceManagable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F56CC33038140E00C077F1 /* NetworkServiceManagable.swift */; };
@@ -108,8 +109,8 @@
 		C5F56D3E303828B400C077F1 /* RiderOrdersScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F56D19303828B400C077F1 /* RiderOrdersScreen.swift */; };
 		C5F56D3E3038510B00C077F1 /* SupportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F56D3D3038510B00C077F1 /* SupportView.swift */; };
 		C5F56D3F303828B400C077F1 /* RiderOrderCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F56D1A303828B400C077F1 /* RiderOrderCard.swift */; };
-		C5F56D41303828B400C077F1 /* DistanceAlertModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F56D1B303828B400C077F1 /* DistanceAlertModalView.swift */; };
 		C5F56D403038511F00C077F1 /* SupportServiceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F56D3F3038511F00C077F1 /* SupportServiceManager.swift */; };
+		C5F56D41303828B400C077F1 /* DistanceAlertModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F56D1B303828B400C077F1 /* DistanceAlertModalView.swift */; };
 		C9B884638AEF43E6BFA8B5D7 /* AddRegularizationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 179C01D5308442C98AB48405 /* AddRegularizationViewModel.swift */; };
 		CA182738B5074A408EEAD649 /* AttendanceCommonViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF05E419FBEF4E2BA56AF5E9 /* AttendanceCommonViews.swift */; };
 		CEAB7772B3F04D94BF1D38E6 /* SellerPaymentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B7F3B4259249CAB9E6802A /* SellerPaymentModels.swift */; };
@@ -174,6 +175,7 @@
 		C5F56CE13038140E00C077F1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C5F56CE23038140E00C077F1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C5F56CE33038140E00C077F1 /* TrudataRiderApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrudataRiderApp.swift; sourceTree = "<group>"; };
+		C5F56D983038990000C077F1 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C5F56D053038148300C077F1 /* HomePrefetchModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePrefetchModels.swift; sourceTree = "<group>"; };
 		C5F56D08303814E800C077F1 /* SplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreen.swift; sourceTree = "<group>"; };
 		C5F56D0A3038160000C077F1 /* AuthScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthScreen.swift; sourceTree = "<group>"; };
@@ -399,6 +401,7 @@
 				C5F56CE03038140E00C077F1 /* Utility */,
 				C5F56CE13038140E00C077F1 /* AppDelegate.swift */,
 				C5F56CE23038140E00C077F1 /* Assets.xcassets */,
+				C5F56D983038990000C077F1 /* LaunchScreen.storyboard */,
 				C5F56CE33038140E00C077F1 /* TrudataRiderApp.swift */,
 			);
 			path = TrudataRider;
@@ -609,6 +612,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C5F56CE53038140E00C077F1 /* Assets.xcassets in Resources */,
+				C5F56D993038990000C077F1 /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -910,15 +914,17 @@
 				DEVELOPMENT_TEAM = TP9YK56DA7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = TruPack;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Camera is used to capture delivery proof and attendance photos.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Location is used to track deliveries and mark attendance.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Location is used to track deliveries and mark attendance.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Microphone is used to record delivery remarks.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -952,15 +958,17 @@
 				DEVELOPMENT_TEAM = TP9YK56DA7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = TruPack;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Camera is used to capture delivery proof and attendance photos.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Location is used to track deliveries and mark attendance.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Location is used to track deliveries and mark attendance.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Microphone is used to record delivery remarks.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
