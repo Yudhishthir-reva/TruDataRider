@@ -168,6 +168,13 @@ struct HomeScreen: View {
                 viewModel.loadHomeForResume()
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .didReceivePushNotification)) { notification in
+            if let userInfo = notification.object as? [AnyHashable: Any] {
+                handlePushNotification(userInfo)
+            } else {
+                viewModel.loadHome(isRefresh: true)
+            }
+        }
         .alert("Logout", isPresented: $showLogoutDialog) {
             Button("Cancel", role: .cancel) {}
             Button("Logout", role: .destructive) { viewModel.logout() }
@@ -272,6 +279,20 @@ struct HomeScreen: View {
         case "payment_history": return "Payment History"
         case "profile", "user_profile", "my_profile": return "My Profile"
         default: return route.replacingOccurrences(of: "_", with: " ").capitalized
+        }
+    }
+
+    private func handlePushNotification(_ userInfo: [AnyHashable: Any]) {
+        viewModel.loadHome(isRefresh: true)
+
+        let route = (userInfo["route"] as? String)
+            ?? (userInfo["screen"] as? String)
+            ?? (userInfo["type"] as? String)
+            ?? (userInfo["action"] as? String)
+            ?? ""
+
+        if !route.isEmpty {
+            navigate(route)
         }
     }
 

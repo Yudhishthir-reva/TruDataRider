@@ -16,6 +16,7 @@ struct DeviceInfo: Encodable {
     let hardware: String
     let deviceId: String
     let buildType: String
+    let fcmToken: String?
 
     static func current() -> DeviceInfo {
         let info = Bundle.main.infoDictionary
@@ -26,6 +27,7 @@ struct DeviceInfo: Encodable {
         #else
         let buildType = "Release"
         #endif
+        let token = UserDefaultManager.shared.fcmToken
 
         return DeviceInfo(
             appVersion: version,
@@ -36,7 +38,8 @@ struct DeviceInfo: Encodable {
             cpu: "arm64",
             hardware: UIDevice.current.systemName,
             deviceId: UIDevice.current.identifierForVendor?.uuidString ?? "unknown",
-            buildType: buildType
+            buildType: buildType,
+            fcmToken: token.isEmpty ? nil : token
         )
     }
 

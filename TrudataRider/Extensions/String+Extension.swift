@@ -80,3 +80,9 @@ extension Date {
         calendar.component(component, from: self)
     }
 }
+
+extension Notification.Name {
+    static let fcmTokenDidUpdate = Notification.Name("fcmTokenDidUpdate")
+    static let didReceivePushNotification = Notification.Name("didReceivePushNotification")
+}
+

@@ -21,6 +21,12 @@ class UserDefaultManager {
         case isUserWorking
         case locationUpdateInterval
         case locationPriority
+        case fcmToken
+    }
+
+    var fcmToken: String {
+        get { getUserDefaultsString(key: .fcmToken) }
+        set { setUserDefaultsString(value: newValue, key: .fcmToken) }
     }
 
     func setUserDefaultsString(value: String, key: PersistenceKeys) {

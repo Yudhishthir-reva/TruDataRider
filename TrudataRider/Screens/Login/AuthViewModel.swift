@@ -43,11 +43,17 @@ class AuthViewModel: ObservableObject {
         isLoading = true
         isFieldEnabled = false
 
-        let params: [String: Any] = [
+        var params: [String: Any] = [
             "mobile": mobile.trim,
             "password": password,
-            "deviceInfo": deviceInfo.jsonString
+            "deviceInfo": DeviceInfo.current().jsonString
         ]
+
+        let fcmToken = UserDefaultManager.shared.fcmToken
+        if !fcmToken.isEmpty {
+            params["fcm_token"] = fcmToken
+            params["device_token"] = fcmToken
+        }
 
         service.login(params: params)
             .receive(on: RunLoop.main)
@@ -89,12 +95,16 @@ class AuthViewModel: ObservableObject {
             mobileError = "Mobile number cannot be empty"
             return false
         }
-        if trimmedMobile.count != 10 || !trimmedMobile.isValidIndianMobileNumber() {
+        if trimmedMobile.count != 10 || !trimmedMobile.isValidMobileNumber() {
             mobileError = "Please enter a valid 10-digit mobile number"
             return false
         }
-        if password.isEmpty || password.count < 6 {
-            passwordError = "Password is invalid"
+        if password.isEmpty {
+            passwordError = "Password cannot be empty"
+            return false
+        }
+        if password.count < 6 {
+            passwordError = "Password must be at least 6 characters"
             return false
         }
         return true
