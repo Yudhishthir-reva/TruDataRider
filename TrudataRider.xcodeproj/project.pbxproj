@@ -34,8 +34,8 @@
 		A71309A7F983417999EA0662 /* ExpenseModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DC2FD35126241989B47F2C3 /* ExpenseModels.swift */; };
 		A911484871504026AC42EDE1 /* SlideToConfirmView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B23324CA5AA843E88DB572FF /* SlideToConfirmView.swift */; };
 		B08B5B1EB89245A19D020686 /* AttendanceDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C35FA26193B24335A9D860A2 /* AttendanceDetailSheet.swift */; };
+		C59C009830457AE300A44298 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C59C009730457AE300A44298 /* GoogleService-Info.plist */; };
 		C5F56CE53038140E00C077F1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C5F56CE23038140E00C077F1 /* Assets.xcassets */; };
-		C5F56D993038990000C077F1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C5F56D983038990000C077F1 /* LaunchScreen.storyboard */; };
 		C5F56CE63038140E00C077F1 /* JSONValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F56CC13038140E00C077F1 /* JSONValue.swift */; };
 		C5F56CE73038140E00C077F1 /* LenientDecoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F56CC23038140E00C077F1 /* LenientDecoding.swift */; };
 		C5F56CE83038140E00C077F1 /* NetworkServiceManagable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F56CC33038140E00C077F1 /* NetworkServiceManagable.swift */; };
@@ -111,6 +111,7 @@
 		C5F56D3F303828B400C077F1 /* RiderOrderCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F56D1A303828B400C077F1 /* RiderOrderCard.swift */; };
 		C5F56D403038511F00C077F1 /* SupportServiceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F56D3F3038511F00C077F1 /* SupportServiceManager.swift */; };
 		C5F56D41303828B400C077F1 /* DistanceAlertModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F56D1B303828B400C077F1 /* DistanceAlertModalView.swift */; };
+		C5F56D993038990000C077F1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C5F56D983038990000C077F1 /* LaunchScreen.storyboard */; };
 		C9B884638AEF43E6BFA8B5D7 /* AddRegularizationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 179C01D5308442C98AB48405 /* AddRegularizationViewModel.swift */; };
 		CA182738B5074A408EEAD649 /* AttendanceCommonViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF05E419FBEF4E2BA56AF5E9 /* AttendanceCommonViews.swift */; };
 		CEAB7772B3F04D94BF1D38E6 /* SellerPaymentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B7F3B4259249CAB9E6802A /* SellerPaymentModels.swift */; };
@@ -144,6 +145,7 @@
 		BC2D5D320F6F424FBD6258BD /* LeaveViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaveViewModel.swift; sourceTree = "<group>"; };
 		C00E946CE6974C1B82C0E870 /* MarkAttendanceModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkAttendanceModels.swift; sourceTree = "<group>"; };
 		C35FA26193B24335A9D860A2 /* AttendanceDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttendanceDetailSheet.swift; sourceTree = "<group>"; };
+		C59C009730457AE300A44298 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		C5F56BF43038111400C077F1 /* TrudataRider.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrudataRider.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C5F56CC13038140E00C077F1 /* JSONValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONValue.swift; sourceTree = "<group>"; };
 		C5F56CC23038140E00C077F1 /* LenientDecoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LenientDecoding.swift; sourceTree = "<group>"; };
@@ -175,7 +177,6 @@
 		C5F56CE13038140E00C077F1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C5F56CE23038140E00C077F1 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		C5F56CE33038140E00C077F1 /* TrudataRiderApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrudataRiderApp.swift; sourceTree = "<group>"; };
-		C5F56D983038990000C077F1 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C5F56D053038148300C077F1 /* HomePrefetchModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomePrefetchModels.swift; sourceTree = "<group>"; };
 		C5F56D08303814E800C077F1 /* SplashScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashScreen.swift; sourceTree = "<group>"; };
 		C5F56D0A3038160000C077F1 /* AuthScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthScreen.swift; sourceTree = "<group>"; };
@@ -222,6 +223,7 @@
 		C5F56D3B303850F900C077F1 /* SupportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportViewModel.swift; sourceTree = "<group>"; };
 		C5F56D3D3038510B00C077F1 /* SupportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportView.swift; sourceTree = "<group>"; };
 		C5F56D3F3038511F00C077F1 /* SupportServiceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportServiceManager.swift; sourceTree = "<group>"; };
+		C5F56D983038990000C077F1 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C61DAC043A9545AA85135550 /* MarkAttendanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkAttendanceViewModel.swift; sourceTree = "<group>"; };
 		D020808AB42843AB80BCF7A2 /* AddExpenseViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExpenseViewModel.swift; sourceTree = "<group>"; };
 		DABECE14C87847998807D5DB /* AddExpenseScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExpenseScreen.swift; sourceTree = "<group>"; };
@@ -403,6 +405,7 @@
 				C5F56CE23038140E00C077F1 /* Assets.xcassets */,
 				C5F56D983038990000C077F1 /* LaunchScreen.storyboard */,
 				C5F56CE33038140E00C077F1 /* TrudataRiderApp.swift */,
+				C59C009730457AE300A44298 /* GoogleService-Info.plist */,
 			);
 			path = TrudataRider;
 			sourceTree = "<group>";
@@ -613,6 +616,7 @@
 			files = (
 				C5F56CE53038140E00C077F1 /* Assets.xcassets in Resources */,
 				C5F56D993038990000C077F1 /* LaunchScreen.storyboard in Resources */,
+				C59C009830457AE300A44298 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -931,7 +935,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.TrudataRider;
+				PRODUCT_BUNDLE_IDENTIFIER = com.reva.trudataa.rider;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -975,7 +979,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.TrudataRider;
+				PRODUCT_BUNDLE_IDENTIFIER = com.reva.trudataa.rider;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
