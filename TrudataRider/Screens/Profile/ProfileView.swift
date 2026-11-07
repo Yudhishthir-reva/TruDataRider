@@ -14,8 +14,8 @@ struct ProfileView: View {
     var onBack: (() -> Void)?
     var onHome: (() -> Void)?
 
-    private let screenBackground = Color(hex: "F4F6F9")
-    private let iconBlue = Color(hex: "2563EB")
+    private let screenBackground = DashboardTheme.surfaceVariant
+    private let iconBlue = DashboardTheme.primaryBlue
     private let labelGray = Color(hex: "9CA3AF")
     private let textDark = Color(hex: "111827")
     private let sectionTitleColor = Color(hex: "1F2937")
@@ -151,13 +151,13 @@ struct ProfileView: View {
             RoundedRectangle(cornerRadius: 22, style: .continuous)
                 .fill(
                     LinearGradient(
-                        colors: [Color(hex: "3B59F5"), Color(hex: "7C3AED")],
+                        colors: [DashboardTheme.primaryBlue, DashboardTheme.secondaryPurple],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
                 )
         }
-        .shadow(color: Color(hex: "3B59F5").opacity(0.2), radius: 10, x: 0, y: 6)
+        .shadow(color: DashboardTheme.primaryBlue.opacity(0.2), radius: 10, x: 0, y: 6)
     }
 
     // MARK: - Employment Details Card
@@ -271,7 +271,7 @@ struct ProfileInfoRow: View {
     let iconName: String
     let label: String
     let value: String
-    var iconColor: Color = Color(hex: "2563EB")
+    var iconColor: Color = DashboardTheme.primaryBlue
 
     var body: some View {
         HStack(alignment: .center, spacing: 16) {

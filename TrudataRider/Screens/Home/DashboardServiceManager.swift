@@ -14,10 +14,10 @@ class DashboardServiceManager {
         self.networkService = networkService
     }
 
-    func loadHome(deviceId: String) -> AnyPublisher<DashboardResponse, Error> {
+    func loadHome() -> AnyPublisher<DashboardResponse, Error> {
         networkService.request(
             APIRouter.homeV2,
-            params: ["device_id": deviceId],
+            params: ["device_id": UserDefaultManager.shared.fcmToken],
             headers: UserDefaultManager.shared.authHeader
         )
     }

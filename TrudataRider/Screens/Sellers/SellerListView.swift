@@ -6,10 +6,10 @@
 import SwiftUI
 
 private enum SellerTheme {
-    static let appBlue = Color(red: 0.00, green: 0.20, blue: 0.31)
-    static let buttonBlue = Color(red: 0.00, green: 0.48, blue: 0.95)
-    static let lightBackground = Color(red: 0.96, green: 0.97, blue: 0.99)
-    static let activeBg = Color(red: 0.90, green: 0.98, blue: 0.94)
+    static let appBlue = AppTheme.brand.deep
+    static let buttonBlue = AppTheme.brand.primary
+    static let lightBackground = AppTheme.brand.surfaceVariant
+    static let activeBg = AppTheme.brand.container
     static let activeText = Color(red: 0.08, green: 0.50, blue: 0.24)
 }
 

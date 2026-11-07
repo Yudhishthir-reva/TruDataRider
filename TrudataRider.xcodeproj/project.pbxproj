@@ -13,8 +13,12 @@
 		1F20F301FE1342079A5461DE /* AddExpenseScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = DABECE14C87847998807D5DB /* AddExpenseScreen.swift */; };
 		234FC2A52C460FE83855A8E6 /* Pods_TrudataRider.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FD6ED008582E5156982D5BDC /* Pods_TrudataRider.framework */; };
 		253CC2C4D0B945D89ECBC128 /* AddExpenseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D020808AB42843AB80BCF7A2 /* AddExpenseViewModel.swift */; };
+		26006072791309C5B16E0C9D /* CashCollection/AdvanceFormScreens.swift in Sources */ = {isa = PBXBuildFile; fileRef = BEFE4B5F5B49DA851AAA7017 /* CashCollection/AdvanceFormScreens.swift */; };
 		2DB57107889C4546B795F3CD /* BillSettlementViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A74669A4B6483699577649 /* BillSettlementViewModel.swift */; };
 		30D99386959F4F7DBB0DBA0F /* MarkAttendanceScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9F92968D72545D1BF52E50B /* MarkAttendanceScreen.swift */; };
+		31449BC9CD19E2865D247B94 /* CashCollection/DenominationSummaryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35C3C021DBE5BDFB8A85DC4 /* CashCollection/DenominationSummaryViewModel.swift */; };
+		39C3E5A2264869562AFF3AEA /* CashCollection/CollectionDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6456852FDB2832F6577A829 /* CashCollection/CollectionDetailViewModel.swift */; };
+		3D5187DB52A8A87E05931F0E /* PaymentHistory/PaymentHistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B5C791B24C251FD847C6652 /* PaymentHistory/PaymentHistoryViewModel.swift */; };
 		3D57801442B14410A2FDF771 /* LeaveServiceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72E675538F564F969C073DE6 /* LeaveServiceManager.swift */; };
 		3F1B17A3FFD94F9889DF1357 /* RegularizationModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4766474F085F48D3A086BDF2 /* RegularizationModels.swift */; };
 		4796FC3CC27D4AEABAD7DD83 /* ExpenseViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C74A6B7EFBD483A82EDAC4C /* ExpenseViewModel.swift */; };
@@ -22,18 +26,36 @@
 		4D1B5B03FCA14EA5B37F368F /* MarkAttendanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61DAC043A9545AA85135550 /* MarkAttendanceViewModel.swift */; };
 		4EC9B45BA6B6464298B66FB4 /* LeaveViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2D5D320F6F424FBD6258BD /* LeaveViewModel.swift */; };
 		596E90A42CBD4D32A8A2374A /* AddRegularizationScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BC03B8ABC6447DB91A27289 /* AddRegularizationScreen.swift */; };
+		5B63E2722A998E4AF9295AC1 /* AccountBlockedScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0616BA2811187B5A5EC700B /* AccountBlockedScreen.swift */; };
 		6437957D3FA64AD08D459337 /* AddLeaveScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6724BEC0D86543BDA17E55DE /* AddLeaveScreen.swift */; };
 		66E4A3CA905D4BF89264DBF1 /* MarkAttendanceServiceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6378DAB0B9ED4512B92307DC /* MarkAttendanceServiceManager.swift */; };
+		6DEA180A8BE1504025505637 /* CashCollection/CashCollectionKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8BBE7F7DAC7865CE80563FA /* CashCollection/CashCollectionKit.swift */; };
 		6F097B0BB00A4F649812354B /* AddLeaveViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A4F70927B724B639EB2C98B /* AddLeaveViewModel.swift */; };
+		7DBFCF5074BA127B3FF0BEA0 /* CashCollection/DenominationFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2C1624A8F79581380D597A3 /* CashCollection/DenominationFormView.swift */; };
 		7FDCE7D248EA4DCBBB517201 /* ExpenseListScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F39FB169BC44E999E34E6F /* ExpenseListScreen.swift */; };
 		8139A8F081294DC79327FBA4 /* SellersAppBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D26F1B67BE740698E905E02 /* SellersAppBar.swift */; };
+		821938D03CD609456AEAE295 /* CashCollection/CashCollectionServiceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F58C6150DF05C94B3D99FAD /* CashCollection/CashCollectionServiceManager.swift */; };
+		82301B6BDF219DA203098617 /* PaymentHistory/PaymentHistoryServiceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E116FB05D8EC1CD62F8DFCC9 /* PaymentHistory/PaymentHistoryServiceManager.swift */; };
 		82B7C470F80846B880736651 /* LeaveModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FC5EA60DBBC410A83E82CC6 /* LeaveModels.swift */; };
 		83460987AF314B47BD85E899 /* ExpenseServiceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42D0FC859E7F4E4C9E424CB2 /* ExpenseServiceManager.swift */; };
+		84F81D74DCFF5BEA7C0241D2 /* PaymentHistory/PaymentHistoryScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = D62809B2EF6A626FAE3C0B24 /* PaymentHistory/PaymentHistoryScreen.swift */; };
+		867F099DB41532BF22C440A2 /* AppUpdateConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C94D4F895C3331F948A9F12 /* AppUpdateConfig.swift */; };
+		98578B1D13165E7BC6AC8179 /* CashCollection/AmountTakenScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBFD7CC6105EABBEBCD34ADB /* CashCollection/AmountTakenScreen.swift */; };
 		A0076A7608E14ED78312578B /* RegularizationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB8C8307671F40BE938A894C /* RegularizationViewModel.swift */; };
+		A17B4794D076D6CA6FA46A00 /* CashCollection/CollectionDetailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 974A7EFB2369818F81D6D8E8 /* CashCollection/CollectionDetailScreen.swift */; };
 		A60028B54C994AC588543200 /* AddPaymentScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A7F86BADECF64BCA90C76587 /* AddPaymentScreen.swift */; };
 		A71309A7F983417999EA0662 /* ExpenseModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DC2FD35126241989B47F2C3 /* ExpenseModels.swift */; };
+		A8FD6447FA2CB0DEBCDFBA33 /* CashCollection/AdvanceListScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = B87813F83F0D7F11E29A0381 /* CashCollection/AdvanceListScreen.swift */; };
 		A911484871504026AC42EDE1 /* SlideToConfirmView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B23324CA5AA843E88DB572FF /* SlideToConfirmView.swift */; };
+		A96230E61B4069DC85124A25 /* PaymentHistory/PaymentHistoryModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87DFC692762BCAC2B870D963 /* PaymentHistory/PaymentHistoryModels.swift */; };
+		AA1F8069F1D705D1A9A00A03 /* CashCollection/UtilityScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6FFC2653867A1C6D6B144AB /* CashCollection/UtilityScreen.swift */; };
 		B08B5B1EB89245A19D020686 /* AttendanceDetailSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C35FA26193B24335A9D860A2 /* AttendanceDetailSheet.swift */; };
+		B18585C2086923156800E75D /* CashCollection/LedgerScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CB1CF950D30B20ED99B1FA6 /* CashCollection/LedgerScreen.swift */; };
+		B9471480E0D30D3969DCACF2 /* CashCollection/BillRegisterDetailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8234E7FB00C4C37E8965E575 /* CashCollection/BillRegisterDetailScreen.swift */; };
+		B96C7D6EEE8C774D5E995B45 /* CashCollection/BillRegisterCreateScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = C49335CDCB0784E32C0AD528 /* CashCollection/BillRegisterCreateScreen.swift */; };
+		BF6DBDF56EFB5CA1238EFDA8 /* CashCollection/CashCollectionModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = D20B7D991CF5D40E5F029475 /* CashCollection/CashCollectionModels.swift */; };
+		C1EB47AFE6D057E6807A8F15 /* CashCollection/CashCollectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7ECA4056313B732E29A48B9 /* CashCollection/CashCollectionViewModel.swift */; };
+		C3DD4AA9069CB617257B6D15 /* CashCollection/BillRegisterListScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A18E08E33537EB0B321027C6 /* CashCollection/BillRegisterListScreen.swift */; };
 		C59C009830457AE300A44298 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C59C009730457AE300A44298 /* GoogleService-Info.plist */; };
 		C5F56CE53038140E00C077F1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C5F56CE23038140E00C077F1 /* Assets.xcassets */; };
 		C5F56CE63038140E00C077F1 /* JSONValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F56CC13038140E00C077F1 /* JSONValue.swift */; };
@@ -112,39 +134,70 @@
 		C5F56D403038511F00C077F1 /* SupportServiceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F56D3F3038511F00C077F1 /* SupportServiceManager.swift */; };
 		C5F56D41303828B400C077F1 /* DistanceAlertModalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5F56D1B303828B400C077F1 /* DistanceAlertModalView.swift */; };
 		C5F56D993038990000C077F1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C5F56D983038990000C077F1 /* LaunchScreen.storyboard */; };
+		C600B8AB5409078BB1238956 /* AppUpdateDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7D842D8ED9B8FB0A98E86DEE /* AppUpdateDialog.swift */; };
 		C9B884638AEF43E6BFA8B5D7 /* AddRegularizationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 179C01D5308442C98AB48405 /* AddRegularizationViewModel.swift */; };
 		CA182738B5074A408EEAD649 /* AttendanceCommonViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF05E419FBEF4E2BA56AF5E9 /* AttendanceCommonViews.swift */; };
 		CEAB7772B3F04D94BF1D38E6 /* SellerPaymentModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B7F3B4259249CAB9E6802A /* SellerPaymentModels.swift */; };
 		D1A855A630224AD0BFE1969E /* RegularizationListScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 94A0916B82A74BC3ABC30DAF /* RegularizationListScreen.swift */; };
 		D1FDA796DCE3429AA6C093D8 /* LeaveListScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6536C0C9FE634F2BAC621CC9 /* LeaveListScreen.swift */; };
 		DA4DB8B458C74948B63CF38F /* SellerPaymentServiceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE77E44FE08E415385A183BF /* SellerPaymentServiceManager.swift */; };
+		E6BCC9F28489E9D4D9C6FC2E /* RemoteConfigManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74D39747BC18DC9F07E39FAC /* RemoteConfigManager.swift */; };
+		EC9A9829421D07D6DFFA95EB /* CashCollection/CashCollectionScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FE1F0A48B81F2980528A3B8 /* CashCollection/CashCollectionScreen.swift */; };
+		FC26459DA4BD94F9C5A3D5E4 /* CashCollection/AdvanceDetailScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C354362E1861806268149CE /* CashCollection/AdvanceDetailScreen.swift */; };
+		E9E67AFE39FE68A3E7D47FE1 /* AssignPackerScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 402BF2D4B1CE2048D6654EA9 /* AssignPackerScreen.swift */; };
+		589FB98B65EE8E08A6037A5A /* PackOrderScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 03F75BA5A83829CA9BC7EA6C /* PackOrderScreen.swift */; };
+		438C82A353BE9C58B1AB9594 /* PackerComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = F936633090E063A197917D0B /* PackerComponents.swift */; };
+		87DD2667B750D6394A3FDA77 /* PackerHomeCards.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39A6C4F74805B0387B48A10F /* PackerHomeCards.swift */; };
+		8E9FE813087089DCD96DEDA1 /* PackerKit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FA4448DB1690B0D4478ACBB /* PackerKit.swift */; };
+		4ED2FBC070DCC26463B180F1 /* PackerModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB4D43953C392DF0A3331BA3 /* PackerModels.swift */; };
+		6753DA07D279118AB0260936 /* PackerOrdersScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C1AC34B6CE27CAC63FEB7D /* PackerOrdersScreen.swift */; };
+		90827481EA45EA0491BF2651 /* PackerServiceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = E308E01397DC789E1A978292 /* PackerServiceManager.swift */; };
+		882F42CAA039FD767E861816 /* PackerViewModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48F2380303C95F2835FE8B2B /* PackerViewModels.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		0DC2FD35126241989B47F2C3 /* ExpenseModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseModels.swift; sourceTree = "<group>"; };
+		0FE1F0A48B81F2980528A3B8 /* CashCollection/CashCollectionScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CashCollection/CashCollectionScreen.swift; sourceTree = "<group>"; };
 		179C01D5308442C98AB48405 /* AddRegularizationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRegularizationViewModel.swift; sourceTree = "<group>"; };
 		1BC03B8ABC6447DB91A27289 /* AddRegularizationScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddRegularizationScreen.swift; sourceTree = "<group>"; };
+		3B5C791B24C251FD847C6652 /* PaymentHistory/PaymentHistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentHistory/PaymentHistoryViewModel.swift; sourceTree = "<group>"; };
 		42D0FC859E7F4E4C9E424CB2 /* ExpenseServiceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseServiceManager.swift; sourceTree = "<group>"; };
 		4766474F085F48D3A086BDF2 /* RegularizationModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegularizationModels.swift; sourceTree = "<group>"; };
 		6378DAB0B9ED4512B92307DC /* MarkAttendanceServiceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkAttendanceServiceManager.swift; sourceTree = "<group>"; };
 		6536C0C9FE634F2BAC621CC9 /* LeaveListScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaveListScreen.swift; sourceTree = "<group>"; };
 		6724BEC0D86543BDA17E55DE /* AddLeaveScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddLeaveScreen.swift; sourceTree = "<group>"; };
 		72E675538F564F969C073DE6 /* LeaveServiceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaveServiceManager.swift; sourceTree = "<group>"; };
+		74D39747BC18DC9F07E39FAC /* RemoteConfigManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteConfigManager.swift; sourceTree = "<group>"; };
+		7C354362E1861806268149CE /* CashCollection/AdvanceDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CashCollection/AdvanceDetailScreen.swift; sourceTree = "<group>"; };
+		7CB1CF950D30B20ED99B1FA6 /* CashCollection/LedgerScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CashCollection/LedgerScreen.swift; sourceTree = "<group>"; };
 		7D26F1B67BE740698E905E02 /* SellersAppBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SellersAppBar.swift; sourceTree = "<group>"; };
+		7D842D8ED9B8FB0A98E86DEE /* AppUpdateDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateDialog.swift; sourceTree = "<group>"; };
 		7FC5EA60DBBC410A83E82CC6 /* LeaveModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaveModels.swift; sourceTree = "<group>"; };
 		81C018DB4BD1121F4D08B367 /* Pods-TrudataRider.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TrudataRider.debug.xcconfig"; path = "Target Support Files/Pods-TrudataRider/Pods-TrudataRider.debug.xcconfig"; sourceTree = "<group>"; };
+		8234E7FB00C4C37E8965E575 /* CashCollection/BillRegisterDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CashCollection/BillRegisterDetailScreen.swift; sourceTree = "<group>"; };
+		87DFC692762BCAC2B870D963 /* PaymentHistory/PaymentHistoryModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentHistory/PaymentHistoryModels.swift; sourceTree = "<group>"; };
 		88C39B4BAF1D4864A92C64A5 /* AddPaymentViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPaymentViewModel.swift; sourceTree = "<group>"; };
+		8C94D4F895C3331F948A9F12 /* AppUpdateConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateConfig.swift; sourceTree = "<group>"; };
 		91F39FB169BC44E999E34E6F /* ExpenseListScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseListScreen.swift; sourceTree = "<group>"; };
 		94A0916B82A74BC3ABC30DAF /* RegularizationListScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegularizationListScreen.swift; sourceTree = "<group>"; };
+		974A7EFB2369818F81D6D8E8 /* CashCollection/CollectionDetailScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CashCollection/CollectionDetailScreen.swift; sourceTree = "<group>"; };
 		9A4F70927B724B639EB2C98B /* AddLeaveViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddLeaveViewModel.swift; sourceTree = "<group>"; };
 		9C74A6B7EFBD483A82EDAC4C /* ExpenseViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseViewModel.swift; sourceTree = "<group>"; };
+		9F58C6150DF05C94B3D99FAD /* CashCollection/CashCollectionServiceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CashCollection/CashCollectionServiceManager.swift; sourceTree = "<group>"; };
+		A18E08E33537EB0B321027C6 /* CashCollection/BillRegisterListScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CashCollection/BillRegisterListScreen.swift; sourceTree = "<group>"; };
+		A35C3C021DBE5BDFB8A85DC4 /* CashCollection/DenominationSummaryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CashCollection/DenominationSummaryViewModel.swift; sourceTree = "<group>"; };
 		A7F86BADECF64BCA90C76587 /* AddPaymentScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddPaymentScreen.swift; sourceTree = "<group>"; };
 		A9B7F3B4259249CAB9E6802A /* SellerPaymentModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SellerPaymentModels.swift; sourceTree = "<group>"; };
 		B23324CA5AA843E88DB572FF /* SlideToConfirmView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideToConfirmView.swift; sourceTree = "<group>"; };
 		B7573AB36C2BAC9B99C0933A /* Pods-TrudataRider.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TrudataRider.release.xcconfig"; path = "Target Support Files/Pods-TrudataRider/Pods-TrudataRider.release.xcconfig"; sourceTree = "<group>"; };
+		B87813F83F0D7F11E29A0381 /* CashCollection/AdvanceListScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CashCollection/AdvanceListScreen.swift; sourceTree = "<group>"; };
 		BC2D5D320F6F424FBD6258BD /* LeaveViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeaveViewModel.swift; sourceTree = "<group>"; };
+		BEFE4B5F5B49DA851AAA7017 /* CashCollection/AdvanceFormScreens.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CashCollection/AdvanceFormScreens.swift; sourceTree = "<group>"; };
 		C00E946CE6974C1B82C0E870 /* MarkAttendanceModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkAttendanceModels.swift; sourceTree = "<group>"; };
 		C35FA26193B24335A9D860A2 /* AttendanceDetailSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttendanceDetailSheet.swift; sourceTree = "<group>"; };
+		C49335CDCB0784E32C0AD528 /* CashCollection/BillRegisterCreateScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CashCollection/BillRegisterCreateScreen.swift; sourceTree = "<group>"; };
+		C575B4AF3046B356003E83D7 /* TrudataRider.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = TrudataRider.entitlements; sourceTree = "<group>"; };
+		C575B4B03046B35A003E83D7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		C59C009730457AE300A44298 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		C5F56BF43038111400C077F1 /* TrudataRider.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrudataRider.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C5F56CC13038140E00C077F1 /* JSONValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONValue.swift; sourceTree = "<group>"; };
@@ -225,16 +278,35 @@
 		C5F56D3F3038511F00C077F1 /* SupportServiceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportServiceManager.swift; sourceTree = "<group>"; };
 		C5F56D983038990000C077F1 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		C61DAC043A9545AA85135550 /* MarkAttendanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkAttendanceViewModel.swift; sourceTree = "<group>"; };
+		C8BBE7F7DAC7865CE80563FA /* CashCollection/CashCollectionKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CashCollection/CashCollectionKit.swift; sourceTree = "<group>"; };
 		D020808AB42843AB80BCF7A2 /* AddExpenseViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExpenseViewModel.swift; sourceTree = "<group>"; };
+		D0616BA2811187B5A5EC700B /* AccountBlockedScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountBlockedScreen.swift; sourceTree = "<group>"; };
+		D20B7D991CF5D40E5F029475 /* CashCollection/CashCollectionModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CashCollection/CashCollectionModels.swift; sourceTree = "<group>"; };
+		D62809B2EF6A626FAE3C0B24 /* PaymentHistory/PaymentHistoryScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentHistory/PaymentHistoryScreen.swift; sourceTree = "<group>"; };
+		D6456852FDB2832F6577A829 /* CashCollection/CollectionDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CashCollection/CollectionDetailViewModel.swift; sourceTree = "<group>"; };
 		DABECE14C87847998807D5DB /* AddExpenseScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExpenseScreen.swift; sourceTree = "<group>"; };
 		DB8C8307671F40BE938A894C /* RegularizationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegularizationViewModel.swift; sourceTree = "<group>"; };
+		DBFD7CC6105EABBEBCD34ADB /* CashCollection/AmountTakenScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CashCollection/AmountTakenScreen.swift; sourceTree = "<group>"; };
 		DE77E44FE08E415385A183BF /* SellerPaymentServiceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SellerPaymentServiceManager.swift; sourceTree = "<group>"; };
+		E116FB05D8EC1CD62F8DFCC9 /* PaymentHistory/PaymentHistoryServiceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentHistory/PaymentHistoryServiceManager.swift; sourceTree = "<group>"; };
 		E5CA319357D643CE90C14988 /* RegularizationServiceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegularizationServiceManager.swift; sourceTree = "<group>"; };
 		E6833E7673F9479E8541E86E /* BillSettlementScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BillSettlementScreen.swift; sourceTree = "<group>"; };
+		E6FFC2653867A1C6D6B144AB /* CashCollection/UtilityScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CashCollection/UtilityScreen.swift; sourceTree = "<group>"; };
 		E9F92968D72545D1BF52E50B /* MarkAttendanceScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkAttendanceScreen.swift; sourceTree = "<group>"; };
+		F2C1624A8F79581380D597A3 /* CashCollection/DenominationFormView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CashCollection/DenominationFormView.swift; sourceTree = "<group>"; };
 		F5A74669A4B6483699577649 /* BillSettlementViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BillSettlementViewModel.swift; sourceTree = "<group>"; };
+		F7ECA4056313B732E29A48B9 /* CashCollection/CashCollectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CashCollection/CashCollectionViewModel.swift; sourceTree = "<group>"; };
 		FD6ED008582E5156982D5BDC /* Pods_TrudataRider.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TrudataRider.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		FF05E419FBEF4E2BA56AF5E9 /* AttendanceCommonViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AttendanceCommonViews.swift; sourceTree = "<group>"; };
+		402BF2D4B1CE2048D6654EA9 /* AssignPackerScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Packer/AssignPackerScreen.swift; sourceTree = "<group>"; };
+		03F75BA5A83829CA9BC7EA6C /* PackOrderScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Packer/PackOrderScreen.swift; sourceTree = "<group>"; };
+		F936633090E063A197917D0B /* PackerComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Packer/PackerComponents.swift; sourceTree = "<group>"; };
+		39A6C4F74805B0387B48A10F /* PackerHomeCards.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Packer/PackerHomeCards.swift; sourceTree = "<group>"; };
+		1FA4448DB1690B0D4478ACBB /* PackerKit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Packer/PackerKit.swift; sourceTree = "<group>"; };
+		BB4D43953C392DF0A3331BA3 /* PackerModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Packer/PackerModels.swift; sourceTree = "<group>"; };
+		84C1AC34B6CE27CAC63FEB7D /* PackerOrdersScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Packer/PackerOrdersScreen.swift; sourceTree = "<group>"; };
+		E308E01397DC789E1A978292 /* PackerServiceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Packer/PackerServiceManager.swift; sourceTree = "<group>"; };
+		48F2380303C95F2835FE8B2B /* PackerViewModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Packer/PackerViewModels.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -353,6 +425,10 @@
 		C5F56CCF3038140E00C077F1 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				D0616BA2811187B5A5EC700B /* AccountBlockedScreen.swift */,
+				7D842D8ED9B8FB0A98E86DEE /* AppUpdateDialog.swift */,
+				74D39747BC18DC9F07E39FAC /* RemoteConfigManager.swift */,
+				8C94D4F895C3331F948A9F12 /* AppUpdateConfig.swift */,
 				C5F56CC63038140E00C077F1 /* Network */,
 				C5F56CC93038140E00C077F1 /* Router */,
 				C5F56CCA3038140E00C077F1 /* AppRootManager.swift */,
@@ -397,6 +473,8 @@
 		C5F56CE43038140E00C077F1 /* TrudataRider */ = {
 			isa = PBXGroup;
 			children = (
+				C575B4B03046B35A003E83D7 /* Info.plist */,
+				C575B4AF3046B356003E83D7 /* TrudataRider.entitlements */,
 				C5F56D033038145300C077F1 /* Screens */,
 				C5F56CCF3038140E00C077F1 /* Core */,
 				C5F56CD33038140E00C077F1 /* Extensions */,
@@ -413,6 +491,37 @@
 		C5F56D033038145300C077F1 /* Screens */ = {
 			isa = PBXGroup;
 			children = (
+				48F2380303C95F2835FE8B2B /* PackerViewModels.swift */,
+				E308E01397DC789E1A978292 /* PackerServiceManager.swift */,
+				84C1AC34B6CE27CAC63FEB7D /* PackerOrdersScreen.swift */,
+				BB4D43953C392DF0A3331BA3 /* PackerModels.swift */,
+				1FA4448DB1690B0D4478ACBB /* PackerKit.swift */,
+				39A6C4F74805B0387B48A10F /* PackerHomeCards.swift */,
+				F936633090E063A197917D0B /* PackerComponents.swift */,
+				03F75BA5A83829CA9BC7EA6C /* PackOrderScreen.swift */,
+				402BF2D4B1CE2048D6654EA9 /* AssignPackerScreen.swift */,
+				3B5C791B24C251FD847C6652 /* PaymentHistory/PaymentHistoryViewModel.swift */,
+				E116FB05D8EC1CD62F8DFCC9 /* PaymentHistory/PaymentHistoryServiceManager.swift */,
+				D62809B2EF6A626FAE3C0B24 /* PaymentHistory/PaymentHistoryScreen.swift */,
+				87DFC692762BCAC2B870D963 /* PaymentHistory/PaymentHistoryModels.swift */,
+				E6FFC2653867A1C6D6B144AB /* CashCollection/UtilityScreen.swift */,
+				7CB1CF950D30B20ED99B1FA6 /* CashCollection/LedgerScreen.swift */,
+				A35C3C021DBE5BDFB8A85DC4 /* CashCollection/DenominationSummaryViewModel.swift */,
+				F2C1624A8F79581380D597A3 /* CashCollection/DenominationFormView.swift */,
+				D6456852FDB2832F6577A829 /* CashCollection/CollectionDetailViewModel.swift */,
+				974A7EFB2369818F81D6D8E8 /* CashCollection/CollectionDetailScreen.swift */,
+				F7ECA4056313B732E29A48B9 /* CashCollection/CashCollectionViewModel.swift */,
+				0FE1F0A48B81F2980528A3B8 /* CashCollection/CashCollectionScreen.swift */,
+				C8BBE7F7DAC7865CE80563FA /* CashCollection/CashCollectionKit.swift */,
+				A18E08E33537EB0B321027C6 /* CashCollection/BillRegisterListScreen.swift */,
+				8234E7FB00C4C37E8965E575 /* CashCollection/BillRegisterDetailScreen.swift */,
+				C49335CDCB0784E32C0AD528 /* CashCollection/BillRegisterCreateScreen.swift */,
+				DBFD7CC6105EABBEBCD34ADB /* CashCollection/AmountTakenScreen.swift */,
+				B87813F83F0D7F11E29A0381 /* CashCollection/AdvanceListScreen.swift */,
+				BEFE4B5F5B49DA851AAA7017 /* CashCollection/AdvanceFormScreens.swift */,
+				7C354362E1861806268149CE /* CashCollection/AdvanceDetailScreen.swift */,
+				9F58C6150DF05C94B3D99FAD /* CashCollection/CashCollectionServiceManager.swift */,
+				D20B7D991CF5D40E5F029475 /* CashCollection/CashCollectionModels.swift */,
 				C5F56D3A303850DD00C077F1 /* Support */,
 				C5F56D3330384DB700C077F1 /* Profile */,
 				C5F56D26303846C700C077F1 /* Sellers */,
@@ -653,9 +762,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-TrudataRider/Pods-TrudataRider-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-TrudataRider/Pods-TrudataRider-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -669,6 +782,41 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				882F42CAA039FD767E861816 /* PackerViewModels.swift in Sources */,
+				90827481EA45EA0491BF2651 /* PackerServiceManager.swift in Sources */,
+				6753DA07D279118AB0260936 /* PackerOrdersScreen.swift in Sources */,
+				4ED2FBC070DCC26463B180F1 /* PackerModels.swift in Sources */,
+				8E9FE813087089DCD96DEDA1 /* PackerKit.swift in Sources */,
+				87DD2667B750D6394A3FDA77 /* PackerHomeCards.swift in Sources */,
+				438C82A353BE9C58B1AB9594 /* PackerComponents.swift in Sources */,
+				589FB98B65EE8E08A6037A5A /* PackOrderScreen.swift in Sources */,
+				E9E67AFE39FE68A3E7D47FE1 /* AssignPackerScreen.swift in Sources */,
+				5B63E2722A998E4AF9295AC1 /* AccountBlockedScreen.swift in Sources */,
+				C600B8AB5409078BB1238956 /* AppUpdateDialog.swift in Sources */,
+				E6BCC9F28489E9D4D9C6FC2E /* RemoteConfigManager.swift in Sources */,
+				867F099DB41532BF22C440A2 /* AppUpdateConfig.swift in Sources */,
+				3D5187DB52A8A87E05931F0E /* PaymentHistory/PaymentHistoryViewModel.swift in Sources */,
+				82301B6BDF219DA203098617 /* PaymentHistory/PaymentHistoryServiceManager.swift in Sources */,
+				84F81D74DCFF5BEA7C0241D2 /* PaymentHistory/PaymentHistoryScreen.swift in Sources */,
+				A96230E61B4069DC85124A25 /* PaymentHistory/PaymentHistoryModels.swift in Sources */,
+				AA1F8069F1D705D1A9A00A03 /* CashCollection/UtilityScreen.swift in Sources */,
+				B18585C2086923156800E75D /* CashCollection/LedgerScreen.swift in Sources */,
+				31449BC9CD19E2865D247B94 /* CashCollection/DenominationSummaryViewModel.swift in Sources */,
+				7DBFCF5074BA127B3FF0BEA0 /* CashCollection/DenominationFormView.swift in Sources */,
+				39C3E5A2264869562AFF3AEA /* CashCollection/CollectionDetailViewModel.swift in Sources */,
+				A17B4794D076D6CA6FA46A00 /* CashCollection/CollectionDetailScreen.swift in Sources */,
+				C1EB47AFE6D057E6807A8F15 /* CashCollection/CashCollectionViewModel.swift in Sources */,
+				EC9A9829421D07D6DFFA95EB /* CashCollection/CashCollectionScreen.swift in Sources */,
+				6DEA180A8BE1504025505637 /* CashCollection/CashCollectionKit.swift in Sources */,
+				C3DD4AA9069CB617257B6D15 /* CashCollection/BillRegisterListScreen.swift in Sources */,
+				B9471480E0D30D3969DCACF2 /* CashCollection/BillRegisterDetailScreen.swift in Sources */,
+				B96C7D6EEE8C774D5E995B45 /* CashCollection/BillRegisterCreateScreen.swift in Sources */,
+				98578B1D13165E7BC6AC8179 /* CashCollection/AmountTakenScreen.swift in Sources */,
+				A8FD6447FA2CB0DEBCDFBA33 /* CashCollection/AdvanceListScreen.swift in Sources */,
+				26006072791309C5B16E0C9D /* CashCollection/AdvanceFormScreens.swift in Sources */,
+				FC26459DA4BD94F9C5A3D5E4 /* CashCollection/AdvanceDetailScreen.swift in Sources */,
+				821938D03CD609456AEAE295 /* CashCollection/CashCollectionServiceManager.swift in Sources */,
+				BF6DBDF56EFB5CA1238EFDA8 /* CashCollection/CashCollectionModels.swift in Sources */,
 				C5F56D2E3038472A00C077F1 /* SellerDetailView.swift in Sources */,
 				C5F56CE63038140E00C077F1 /* JSONValue.swift in Sources */,
 				C5F56D1530383D3000C077F1 /* TodayRiderOrderHistoryViewModel.swift in Sources */,
@@ -909,11 +1057,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = TrudataRider/TrudataRider.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = TP9YK56DA7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TrudataRider/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TruPack;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Camera is used to capture delivery proof and attendance photos.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Location is used to track deliveries and mark attendance.";
@@ -921,10 +1071,10 @@
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Microphone is used to record delivery remarks.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UIBackgroundModes = "fetch remote-notification";
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_UIBackgroundModes = "fetch remote-notification";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -932,7 +1082,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.reva.trudataa.rider;
+				PRODUCT_BUNDLE_IDENTIFIER = com.trudataa.rider;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -954,11 +1104,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = TrudataRider/TrudataRider.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = TP9YK56DA7;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = TrudataRider/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = TruPack;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Camera is used to capture delivery proof and attendance photos.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "Location is used to track deliveries and mark attendance.";
@@ -966,10 +1118,10 @@
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Microphone is used to record delivery remarks.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UIBackgroundModes = "fetch remote-notification";
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
-				INFOPLIST_KEY_UIBackgroundModes = "fetch remote-notification";
 				INFOPLIST_KEY_UIUserInterfaceStyle = Light;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -977,7 +1129,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.reva.trudataa.rider;
+				PRODUCT_BUNDLE_IDENTIFIER = com.trudataa.rider;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";

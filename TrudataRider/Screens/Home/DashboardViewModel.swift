@@ -23,6 +23,9 @@ class DashboardViewModel: ObservableObject {
         "rider_order_history",
         "rider_travel_history",
         "vehicle_overview",
+        // Packer role (Android `RiderDashboardScreen`): the cards load their own counts.
+        "order_paker",
+        "assign_paker",
         "support"
     ]
 
@@ -73,7 +76,7 @@ class DashboardViewModel: ObservableObject {
         }
         errorMessage = nil
 
-        service.loadHome(deviceId: DeviceInfo.current().deviceId)
+        service.loadHome()
             .receive(on: RunLoop.main)
             .sink { [weak self] completion in
                 guard let self else { return }

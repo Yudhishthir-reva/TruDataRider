@@ -25,7 +25,7 @@ struct PermissionRequestView: View {
 
                     Text("Permissions Required")
                         .font(.system(size: 22, weight: .bold))
-                        .foregroundStyle(Color(hex: "225EC2"))
+                        .foregroundStyle(DashboardTheme.primaryBlue)
                         .multilineTextAlignment(.center)
 
                     Text(isLocationPermanentlyDenied
@@ -104,7 +104,7 @@ struct PermissionRequestView: View {
             PermissionActionButton(title: "Enable GPS", color: Color(hex: "EAB308"), action: onEnableLocationServices)
         } else {
             let title = showNotificationPermission ? "Grant Permissions" : "Grant Permission"
-            PermissionActionButton(title: title, color: Color(hex: "225EC2"), action: onGrantPermission)
+            PermissionActionButton(title: title, color: DashboardTheme.primaryBlue, action: onGrantPermission)
         }
     }
 
@@ -118,12 +118,12 @@ struct PermissionRequestView: View {
             }
 
             Circle()
-                .fill(Color(hex: "225EC2").opacity(0.1))
+                .fill(DashboardTheme.primaryBlue.opacity(0.1))
                 .frame(width: 50, height: 50)
                 .overlay {
                     Image(systemName: "location.fill")
                         .font(.system(size: 22))
-                        .foregroundStyle(Color(hex: "225EC2"))
+                        .foregroundStyle(DashboardTheme.primaryBlue)
                 }
 
             if showLocationServicesDisabled {

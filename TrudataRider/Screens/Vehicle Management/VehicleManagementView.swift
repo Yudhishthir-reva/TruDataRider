@@ -6,9 +6,9 @@
 import SwiftUI
 
 private enum VehicleTheme {
-    static let appBlue = Color(red: 0.00, green: 0.20, blue: 0.31)
-    static let buttonBlue = Color(red: 0.00, green: 0.48, blue: 0.95)
-    static let lightBackground = Color(red: 0.96, green: 0.97, blue: 0.99)
+    static let appBlue = AppTheme.brand.deep
+    static let buttonBlue = AppTheme.brand.primary
+    static let lightBackground = AppTheme.brand.surfaceVariant
     static let punchInPurple = Color(red: 0.90, green: 0.84, blue: 1.0)
     static let punchInText = Color(red: 0.35, green: 0.20, blue: 0.55)
     static let successGreen = Color(red: 0.13, green: 0.65, blue: 0.35)

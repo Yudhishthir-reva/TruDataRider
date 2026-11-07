@@ -6,9 +6,9 @@
 import SwiftUI
 
 private enum OrderListTheme {
-    static let appBlue = Color(red: 0.00, green: 0.20, blue: 0.31)
-    static let buttonBlue = Color(red: 0.00, green: 0.48, blue: 0.95)
-    static let lightBackground = Color(red: 0.96, green: 0.97, blue: 0.99)
+    static let appBlue = AppTheme.brand.deep
+    static let buttonBlue = AppTheme.brand.primary
+    static let lightBackground = AppTheme.brand.surfaceVariant
 }
 
 struct RiderOrdersScreen: View {

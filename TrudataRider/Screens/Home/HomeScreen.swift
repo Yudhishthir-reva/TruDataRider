@@ -20,9 +20,17 @@ enum HomeDestination: Hashable {
     case regularizationRequests
     case expenseList
     case operations(RiderOperationsType)
+    case utility
+    case paymentHistory
     case profile
     case support(salesNumber: String, riderNumber: String)
     case placeholder(title: String)
+    /// Android `pk_assign`: pending orders to a packer (route `assign_paker`).
+    case assignPacker
+    /// Android `pk_orders`: the signed-in packer's orders (route `order_paker`).
+    case packerOrders
+    /// Android `pk_order/{id}`: packing one order into boxes.
+    case packOrder(orderId: Int)
 }
 
 struct HomeScreen: View {
@@ -91,6 +99,10 @@ struct HomeScreen: View {
                         RegularizationListScreen(onHome: { navigationPath = NavigationPath() })
                     case .expenseList:
                         ExpenseListScreen(onHome: { navigationPath = NavigationPath() })
+                    case .utility:
+                        UtilityScreen(onHome: { navigationPath = NavigationPath() })
+                    case .paymentHistory:
+                        PaymentHistoryScreen(onHome: { navigationPath = NavigationPath() })
                     case .operations(let type):
                         OperationsScreen(
                             viewModel: viewModel,
@@ -108,6 +120,15 @@ struct HomeScreen: View {
                         )
                     case .placeholder(let title):
                         PlaceholderScreen(title: title)
+                    case .assignPacker:
+                        AssignPackerScreen(onHome: { navigationPath = NavigationPath() })
+                    case .packerOrders:
+                        PackerOrdersScreen(
+                            onOpen: { navigationPath.append(HomeDestination.packOrder(orderId: $0)) },
+                            onHome: { navigationPath = NavigationPath() }
+                        )
+                    case .packOrder(let orderId):
+                        PackOrderScreen(orderId: orderId, onHome: { navigationPath = NavigationPath() })
                     }
                 }
         }
@@ -116,7 +137,7 @@ struct HomeScreen: View {
     private var homeContent: some View {
         ZStack {
             LinearGradient(
-                colors: [Color(hex: "DEE6F8"), Color(hex: "E7EBEF")],
+                colors: [AppTheme.brandBackgroundTop, AppTheme.brandBackgroundBottom],
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -168,6 +189,11 @@ struct HomeScreen: View {
                 viewModel.loadHomeForResume()
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .fcmTokenDidUpdate)) { _ in
+            if permissionManager.canShowDashboard {
+                viewModel.loadHome(isRefresh: true)
+            }
+        }
         .onReceive(NotificationCenter.default.publisher(for: .didReceivePushNotification)) { notification in
             if let userInfo = notification.object as? [AnyHashable: Any] {
                 handlePushNotification(userInfo)
@@ -213,8 +239,13 @@ struct HomeScreen: View {
                     ForEach(viewModel.homeItems) { item in
                         RiderDashboardItemCard(item: item, onNavigate: navigate)
                     }
-                    OtherOperationsCard(operations: ["Activity", "Seller", "Actions"]) { name in
-                        if let type = RiderOperationsType(rawValue: name) {
+                    OtherOperationsCard(
+                        operations: ["Activity", "Seller", "Actions", RiderOperationsType.utilityOperation]
+                    ) { name in
+                        // Utility opens the cash collection hub instead of a dashboard section.
+                        if name == RiderOperationsType.utilityOperation {
+                            navigationPath.append(HomeDestination.utility)
+                        } else if let type = RiderOperationsType(rawValue: name) {
                             navigationPath.append(HomeDestination.operations(type))
                         }
                     }
@@ -249,6 +280,12 @@ struct HomeScreen: View {
             navigationPath.append(HomeDestination.regularizationRequests)
         case "apply_reimbursements", "expense_approval":
             navigationPath.append(HomeDestination.expenseList)
+        case "payment_history":
+            navigationPath.append(HomeDestination.paymentHistory)
+        case "assign_paker":
+            navigationPath.append(HomeDestination.assignPacker)
+        case "order_paker":
+            navigationPath.append(HomeDestination.packerOrders)
         case "support":
             let item = viewModel.homeItems.first(where: { $0.route == "support" })
             let sales = item?.payload?.string(for: "forSales", "sales_number", "sales") ?? "9257040297"

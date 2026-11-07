@@ -45,6 +45,22 @@ extension KeyedDecodingContainer {
         return nil
     }
 
+    /// Money, which this backend sends both ways: `"total_amount": "5,060.00"` on collections and
+    /// bare numbers on the ledger. Reads either, and treats null or junk as nil rather than
+    /// failing the whole row. Mirrors Android's `FlexDoubleSerializer`.
+    func decodeAmountLeniently(forKey key: Key) -> Double? {
+        if let number = try? decodeIfPresent(Double.self, forKey: key) {
+            return number
+        }
+        if let integer = try? decodeIfPresent(Int64.self, forKey: key) {
+            return Double(integer)
+        }
+        if let string = try? decodeIfPresent(String.self, forKey: key) {
+            return Double(string.replacingOccurrences(of: ",", with: ""))
+        }
+        return nil
+    }
+
     func decodeDoubleLeniently(forKey key: Key) -> Double? {
         if let number = try? decodeIfPresent(Double.self, forKey: key) {
             return number

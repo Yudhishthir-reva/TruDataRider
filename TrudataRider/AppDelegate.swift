@@ -27,6 +27,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
         // Register for push notifications
         registerForPushNotifications()
+        fetchFCMToken()
 
         NetworkMonitor.shared.start()
         return true
@@ -53,9 +54,40 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         Messaging.messaging().apnsToken = deviceToken
+        #if DEBUG
         let tokenParts = deviceToken.map { data in String(format: "%02.2hhx", data) }
         let token = tokenParts.joined()
         print("APNs Device Token: \(token)")
+        #endif
+        fetchFCMToken()
+    }
+
+    func applicationDidBecomeActive(_ application: UIApplication) {
+        fetchFCMToken()
+    }
+
+    private func fetchFCMToken() {
+        Messaging.messaging().token { token, error in
+            #if DEBUG
+            if let error {
+                print("Failed to fetch FCM token: \(error.localizedDescription)")
+            }
+            #endif
+            guard let token, !token.isEmpty else { return }
+            DispatchQueue.main.async {
+                self.storeFCMTokenIfNeeded(token)
+            }
+        }
+    }
+
+    private func storeFCMTokenIfNeeded(_ token: String) {
+        guard UserDefaultManager.shared.fcmToken != token else { return }
+        UserDefaultManager.shared.fcmToken = token
+        NotificationCenter.default.post(
+            name: .fcmTokenDidUpdate,
+            object: nil,
+            userInfo: ["token": token]
+        )
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
@@ -71,10 +103,13 @@ class AppDelegate: NSObject, UIApplicationDelegate {
 
 extension AppDelegate: MessagingDelegate {
     func messaging(_ messaging: Messaging, didReceiveRegistrationToken fcmToken: String?) {
-        guard let fcmToken = fcmToken, !fcmToken.isEmpty else { return }
+        guard let fcmToken, !fcmToken.isEmpty else { return }
+        #if DEBUG
         print("FCM Registration Token: \(fcmToken)")
-        UserDefaultManager.shared.fcmToken = fcmToken
-        NotificationCenter.default.post(name: .fcmTokenDidUpdate, object: fcmToken)
+        #endif
+        DispatchQueue.main.async {
+            self.storeFCMTokenIfNeeded(fcmToken)
+        }
     }
 }
 

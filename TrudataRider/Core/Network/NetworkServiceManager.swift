@@ -103,6 +103,10 @@ class NetworkServiceManager: NetworkServiceManagable {
                 default:
                     if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                        let message = json["message"] as? String, !message.isEmpty {
+                        // An expired token ends the session wherever it surfaces, as on Android.
+                        Task { @MainActor in
+                            SessionManager.shared.checkTokenExpiry(message: message)
+                        }
                         throw RequestError.apiMessage(message)
                     }
                     throw RequestError.unknownError
@@ -171,6 +175,10 @@ class NetworkServiceManager: NetworkServiceManagable {
                 default:
                     if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                        let message = json["message"] as? String, !message.isEmpty {
+                        // An expired token ends the session wherever it surfaces, as on Android.
+                        Task { @MainActor in
+                            SessionManager.shared.checkTokenExpiry(message: message)
+                        }
                         throw RequestError.apiMessage(message)
                     }
                     throw RequestError.unknownError

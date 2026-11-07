@@ -44,6 +44,8 @@ struct RiderOrder: Identifiable {
     let remark: String
     let audioRemark: String
     let remarks: [RiderOrderRemark]
+    /// `total_weight` as the server sends it (a number or text); nil when absent or blank.
+    var totalWeight: String? = nil
 
     var status: RiderOrderStatus {
         RiderOrderStatus(rawValue: statusRaw) ?? .assign
@@ -145,9 +147,11 @@ struct RiderOrderDto: Decodable {
     var remark: String
     var audioRemark: String
     var remarks: [RiderOrderRemarkDto]
+    var totalWeight: String?
 
     enum CodingKeys: String, CodingKey {
         case distance, mobile, latitude, longitude, status, remarks
+        case totalWeight = "total_weight"
         case orderId = "order_id"
         case orderNo = "order_no"
         case sellerShopName = "seller_shop_name"
@@ -176,6 +180,9 @@ struct RiderOrderDto: Decodable {
         remark = container.decodeStringLeniently(forKey: .remark) ?? ""
         audioRemark = container.decodeStringLeniently(forKey: .audioRemark) ?? ""
         remarks = (try? container.decode([RiderOrderRemarkDto].self, forKey: .remarks)) ?? []
+        // Android reads it only when it's a plain value; an object or array is ignored like a blank.
+        let weight = container.decodeStringLeniently(forKey: .totalWeight)?.trim ?? ""
+        totalWeight = weight.isEmpty ? nil : weight
     }
 
     func toDomain() -> RiderOrder {
@@ -201,7 +208,8 @@ struct RiderOrderDto: Decodable {
                     createdBy: $0.createdBy,
                     createdAt: $0.createdAt
                 )
-            }
+            },
+            totalWeight: totalWeight
         )
     }
 }

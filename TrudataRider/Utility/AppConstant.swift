@@ -6,8 +6,8 @@
 import Foundation
 
 enum APIBaseURL {
-    static let production = "https://trudataa.com/api/"
-    static let staging = "https://spicemonk.revateam.com/api/"
+    static let production = "https://spicemonk.in/965874/api/"
+    static let staging = "https://spicemonk.in/staging/api/"
 }
 
 let BASE_URL = APIBaseURL.production

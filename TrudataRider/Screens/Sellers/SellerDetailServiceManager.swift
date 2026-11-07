@@ -56,15 +56,12 @@ struct SellerProfileResponse: Decodable {
         case status, message, data
     }
 
-    enum DataKeys: String, CodingKey {
-        case profile
-    }
-
     enum ProfileKeys: String, CodingKey {
         case id, name, email, mobile, status, city, state, address, beat, latitude, longitude
         case shopName = "shop_name"
         case sellerId = "seller_id"
         case profilePic = "profile_pic"
+        case profile
     }
 
     init(from decoder: Decoder) throws {
@@ -76,23 +73,36 @@ struct SellerProfileResponse: Decodable {
             message = container.decodeStringLeniently(forKey: .message) ?? ""
         }
 
-        if let data = try? container.nestedContainer(keyedBy: DataKeys.self, forKey: .data),
-           let profileContainer = try? data.nestedContainer(keyedBy: ProfileKeys.self, forKey: .profile) {
-            profile = SellerProfileDetail(
-                id: profileContainer.decodeIntLeniently(forKey: .id) ?? 0,
-                name: profileContainer.decodeStringLeniently(forKey: .name) ?? "",
-                shopName: profileContainer.decodeStringLeniently(forKey: .shopName) ?? "",
-                email: profileContainer.decodeStringLeniently(forKey: .email) ?? "",
-                mobile: profileContainer.decodeStringLeniently(forKey: .mobile) ?? "",
-                address: profileContainer.decodeStringLeniently(forKey: .address) ?? "",
-                sellerCode: profileContainer.decodeStringLeniently(forKey: .sellerId) ?? "",
-                status: profileContainer.decodeStringLeniently(forKey: .status) ?? "",
-                profilePic: profileContainer.decodeStringLeniently(forKey: .profilePic) ?? "",
-                latitude: profileContainer.decodeStringLeniently(forKey: .latitude) ?? "",
-                longitude: profileContainer.decodeStringLeniently(forKey: .longitude) ?? "",
-                beat: profileContainer.decodeStringLeniently(forKey: .beat) ?? "",
-                city: profileContainer.decodeStringLeniently(forKey: .city) ?? ""
-            )
+        // Rider API returns seller fields directly under `data`.
+        // Admin-style responses may nest them under `data.profile`.
+        if let dataContainer = try? container.nestedContainer(keyedBy: ProfileKeys.self, forKey: .data) {
+            let profileContainer =
+                (try? dataContainer.nestedContainer(keyedBy: ProfileKeys.self, forKey: .profile))
+                ?? dataContainer
+
+            let id = profileContainer.decodeIntLeniently(forKey: .id) ?? 0
+            let name = profileContainer.decodeStringLeniently(forKey: .name) ?? ""
+            let shopName = profileContainer.decodeStringLeniently(forKey: .shopName) ?? ""
+
+            if id > 0 || !name.isEmptyString || !shopName.isEmptyString {
+                profile = SellerProfileDetail(
+                    id: id,
+                    name: name,
+                    shopName: shopName,
+                    email: profileContainer.decodeStringLeniently(forKey: .email) ?? "",
+                    mobile: profileContainer.decodeStringLeniently(forKey: .mobile) ?? "",
+                    address: profileContainer.decodeStringLeniently(forKey: .address) ?? "",
+                    sellerCode: profileContainer.decodeStringLeniently(forKey: .sellerId) ?? "",
+                    status: profileContainer.decodeStringLeniently(forKey: .status) ?? "",
+                    profilePic: profileContainer.decodeStringLeniently(forKey: .profilePic) ?? "",
+                    latitude: profileContainer.decodeStringLeniently(forKey: .latitude) ?? "",
+                    longitude: profileContainer.decodeStringLeniently(forKey: .longitude) ?? "",
+                    beat: profileContainer.decodeStringLeniently(forKey: .beat) ?? "",
+                    city: profileContainer.decodeStringLeniently(forKey: .city) ?? ""
+                )
+            } else {
+                profile = nil
+            }
         } else {
             profile = nil
         }

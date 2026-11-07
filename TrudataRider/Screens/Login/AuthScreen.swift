@@ -52,7 +52,7 @@ struct AuthScreen: View {
                         Spacer()
                         Button("Forgot Password?") {}
                             .font(.system(size: 14, weight: .semibold))
-                            .foregroundStyle(Color(hex: "3A76F5"))
+                            .foregroundStyle(AppTheme.brand.bright)
                     }
 
                     PrimaryActionButton(

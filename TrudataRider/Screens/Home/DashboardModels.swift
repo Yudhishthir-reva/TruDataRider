@@ -191,6 +191,10 @@ enum RiderOperationsType: String, Hashable {
     case seller = "Seller"
     case actions = "Actions"
 
+    /// Listed with the other operations, but it opens the cash collection hub rather than a
+    /// dashboard section — so it is a name, not a case. Matches Android's `UTILITY_OPERATION`.
+    static let utilityOperation = "Utility"
+
     var title: String {
         switch self {
         case .activity: return "My Activity"

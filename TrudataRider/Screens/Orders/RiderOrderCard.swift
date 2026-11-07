@@ -33,8 +33,9 @@ struct RiderOrderCard: View {
                 statusBadge
             }
 
-            // Info tags: ID, Date, Dist
-            HStack(spacing: 8) {
+            // Info tags: ID, Date, Dist, Wt. They wrap to a second line rather than squeeze, now that
+            // the weight can make four.
+            RiderTagFlow(spacing: 8, lineSpacing: 6) {
                 let idText = order.orderNo.hasPrefix("#") ? order.orderNo : "#\(order.orderNo)"
                 infoTag("ID: \(idText)")
                 if !order.date.isEmptyString {
@@ -42,6 +43,9 @@ struct RiderOrderCard: View {
                 }
                 if !order.displayDistance.isEmptyString {
                     infoTag("Dist: \(order.displayDistance)")
+                }
+                if let weight = order.totalWeight {
+                    weightTag("Wt: \(weight)")
                 }
             }
             .padding(.top, 10)
@@ -312,6 +316,17 @@ struct RiderOrderCard: View {
         }
     }
 
+    /// Android draws the weight on Material's tertiary container, so it stands apart from the grey tags.
+    private func weightTag(_ text: String) -> some View {
+        Text(text)
+            .font(.system(size: 11.5, weight: .bold))
+            .foregroundStyle(Color(red: 0.19, green: 0.07, blue: 0.11))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 5)
+            .background(Color(red: 1.0, green: 0.85, blue: 0.89))
+            .clipShape(RoundedRectangle(cornerRadius: 5, style: .continuous))
+    }
+
     private func infoTag(_ text: String) -> some View {
         Text(text)
             .font(.system(size: 11.5, weight: .medium))
@@ -509,5 +524,56 @@ private struct RemarksHistorySheet: View {
             }
         }
         .presentationDetents([.medium, .large])
+    }
+}
+
+/// Android `FlowRow` for the card's info tags: left to right, wrapping onto a new line when the next
+/// tag won't fit.
+private struct RiderTagFlow: Layout {
+    var spacing: CGFloat = 8
+    var lineSpacing: CGFloat = 6
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let rows = arrange(width: proposal.width ?? .infinity, subviews: subviews)
+        let width = rows.map(\.width).max() ?? 0
+        let height = rows.map(\.height).reduce(0, +) + lineSpacing * CGFloat(max(rows.count - 1, 0))
+        return CGSize(width: proposal.width ?? width, height: height)
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        var y = bounds.minY
+        for row in arrange(width: bounds.width, subviews: subviews) {
+            var x = bounds.minX
+            for index in row.indices {
+                let size = subviews[index].sizeThatFits(.unspecified)
+                subviews[index].place(at: CGPoint(x: x, y: y + (row.height - size.height) / 2), proposal: ProposedViewSize(size))
+                x += size.width + spacing
+            }
+            y += row.height + lineSpacing
+        }
+    }
+
+    private struct Row {
+        var indices: [Int] = []
+        var width: CGFloat = 0
+        var height: CGFloat = 0
+    }
+
+    private func arrange(width: CGFloat, subviews: Subviews) -> [Row] {
+        var rows: [Row] = []
+        var row = Row()
+        for index in subviews.indices {
+            let size = subviews[index].sizeThatFits(.unspecified)
+            let needed = row.indices.isEmpty ? size.width : row.width + spacing + size.width
+            if !row.indices.isEmpty && needed > width {
+                rows.append(row)
+                row = Row()
+            }
+            row.width = row.indices.isEmpty ? size.width : row.width + spacing + size.width
+            row.height = max(row.height, size.height)
+            row.indices.append(index)
+        }
+        if !row.indices.isEmpty { rows.append(row) }
+        return rows
     }
 }

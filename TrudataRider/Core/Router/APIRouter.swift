@@ -128,6 +128,40 @@ enum APIRouter: RouterManagable {
     case riderTravelHistory
     case vehiclePunchInOut
     case vehiclePunchHistory
+    case riderTransactionHistory
+
+    // MARK: - Cash collection (V2/cash-collection/…)
+
+    case cashCollectionSubmit
+    case cashCollectionEdit
+    case cashCollectionMyList
+    case cashCollectionAllList
+    case cashCollectionDetail
+    case cashCollectionReview
+    case amountTakenAdd
+    case amountTakenList
+    case amountTakenUpdateStatus
+    case denominationSummary
+    case cashLedger
+
+    // MARK: - Payment advance (V2/payment-advance/…)
+
+    case advanceGive
+    case advanceReceive
+    case advanceAllList
+    case advanceMyList
+    case advanceDetail
+    case advanceUpdateStatus
+
+    // MARK: - Bill register
+    // `beatList` is declared above — bill-register reuses it rather than adding a second case.
+
+    case beatOrders
+    case billRegisterCreate
+    case billRegisterList
+    case billRegisterDetail
+    case billRegisterAssign
+    case billRegisterClear
 
     var endPointUrl: String {
         switch self {
@@ -377,6 +411,57 @@ enum APIRouter: RouterManagable {
             return "rider-vehicle-in-out"
         case .vehiclePunchHistory:
             return "rider-vehicle-in-out-history"
+        case .riderTransactionHistory:
+            return "rider-transaction-history"
+
+        case .cashCollectionSubmit:
+            return "V2/cash-collection/submit"
+        case .cashCollectionEdit:
+            return "V2/cash-collection/edit"
+        case .cashCollectionMyList:
+            return "V2/cash-collection/my-list"
+        case .cashCollectionAllList:
+            return "V2/cash-collection/all-list"
+        case .cashCollectionDetail:
+            return "V2/cash-collection/detail"
+        case .cashCollectionReview:
+            return "V2/cash-collection/review"
+        case .amountTakenAdd:
+            return "V2/cash-collection/amount-taken/add"
+        case .amountTakenList:
+            return "V2/cash-collection/amount-taken/list"
+        case .amountTakenUpdateStatus:
+            return "V2/cash-collection/amount-taken/update-status"
+        case .denominationSummary:
+            return "V2/cash-collection/denomination-summary"
+        case .cashLedger:
+            return "V2/cash-collection/ledger"
+
+        case .advanceGive:
+            return "V2/payment-advance/give"
+        case .advanceReceive:
+            return "V2/payment-advance/receive"
+        case .advanceAllList:
+            return "V2/payment-advance/all-list"
+        case .advanceMyList:
+            return "V2/payment-advance/my-list"
+        case .advanceDetail:
+            return "V2/payment-advance/detail"
+        case .advanceUpdateStatus:
+            return "V2/payment-advance/update-status"
+
+        case .beatOrders:
+            return "bill-register/beat-orders"
+        case .billRegisterCreate:
+            return "bill-register/create"
+        case .billRegisterList:
+            return "bill-register/list"
+        case .billRegisterDetail:
+            return "bill-register/detail"
+        case .billRegisterAssign:
+            return "bill-register/assign"
+        case .billRegisterClear:
+            return "bill-register/clear"
         }
     }
 
@@ -384,6 +469,17 @@ enum APIRouter: RouterManagable {
         switch self {
         case .updateSellerColor, .addProductSpecialPrice, .addCartForEdit, .createOrderForEdit, .addCart, .createOrder:
             return .json
+        // The whole cash-collection surface is JSON in, JSON out.
+        case .cashCollectionSubmit, .cashCollectionEdit, .cashCollectionMyList, .cashCollectionAllList,
+             .cashCollectionDetail, .cashCollectionReview, .amountTakenAdd, .amountTakenList,
+             .amountTakenUpdateStatus, .denominationSummary, .cashLedger,
+             .advanceAllList, .advanceMyList, .advanceDetail, .advanceUpdateStatus,
+             .beatList, .beatOrders, .billRegisterCreate, .billRegisterList, .billRegisterDetail,
+             .billRegisterAssign, .billRegisterClear:
+            return .json
+        // These two can carry an attachment, so they go up as multipart either way.
+        case .advanceGive, .advanceReceive:
+            return .multipartForm
         case .paymentSave, .paymentSettlement, .shopLocationVisited, .addSeller, .updateSeller, .productSave, .productUpdate, .addStaff, .addExpense, .vehiclePunchInOut:
             return .multipartForm
         default:

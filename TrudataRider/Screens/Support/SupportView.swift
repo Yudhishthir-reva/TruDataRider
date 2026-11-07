@@ -15,7 +15,7 @@ struct SupportView: View {
     var onBack: (() -> Void)?
     var onHome: (() -> Void)?
 
-    private let screenBackground = Color(hex: "F4F6F9")
+    private let screenBackground = DashboardTheme.surfaceVariant
 
     init(
         salesNumber: String? = nil,

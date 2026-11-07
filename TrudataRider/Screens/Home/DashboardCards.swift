@@ -5,18 +5,28 @@
 
 import SwiftUI
 
+/// Mirrors Android's `AppColors`: the brand roles resolve through `AppTheme.brand` so the flag
+/// moves both platforms together, while the status and neutral tones stay fixed.
 enum DashboardTheme {
-    static let primaryBlue = Color(hex: "225EC2")
+    static let primaryBlue = AppTheme.brand.primary
+    static let primaryBlueDark = AppTheme.brand.primaryDark
     static let secondaryPurple = Color(hex: "7C3AED")
+    static let accentTeal = AppTheme.brand.accent
     static let infoBlue = Color(hex: "3B82F6")
+
     static let successGreen = Color(hex: "10B981")
-    static let warningYellow = Color(hex: "F59E0B")
+    static let warningYellow = Color(hex: "EAB308")
     static let dangerRed = Color(hex: "EF4444")
     static let pickupOrange = Color(hex: "F97316")
+
     static let neutralDark = Color(hex: "1F2937")
     static let neutralMedium = Color(hex: "6B7280")
-    static let surfaceVariant = Color(hex: "F3F4F6")
+    static let neutralLight = Color(hex: "9CA3AF")
+    static let surface = AppTheme.brand.surface
+    static let surfaceVariant = AppTheme.brand.surfaceVariant
+
     static let cardBackground = Color.white
+    static let borderColor = AppTheme.brand.border
     static let indigo = Color(hex: "4F46E5")
 }
 
@@ -106,6 +116,11 @@ struct RiderDashboardItemCard: View {
             RiderTravelHistoryCard(title: item.title, payload: item.payload, onView: { onNavigate(item.route) })
         case "vehicle_overview":
             RiderVehicleOverviewCard(title: item.title, payload: item.payload, onNavigate: onNavigate)
+        // Packer role: the server sends these two with no data; the cards load their own counts.
+        case "order_paker":
+            PackerQueueCard(title: item.title, onOpen: { onNavigate(item.route) })
+        case "assign_paker":
+            AssignPackerCard(title: item.title, onOpen: { onNavigate(item.route) })
         case "support":
             RiderSupportCard(
                 title: item.title,
