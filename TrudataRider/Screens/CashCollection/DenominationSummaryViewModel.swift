@@ -2,61 +2,88 @@
 //  DenominationSummaryViewModel.swift
 //  TrudataRider
 //
+//  Android `DenominationSummaryViewModel`: `V2/cash-collection/denomination-summary`, approved
+//  collections only, per the server.
+//
 
-import Foundation
 import Combine
+import Foundation
 
 final class DenominationSummaryViewModel: ObservableObject {
 
-    @Published var summary: SummaryTotals?
-    @Published var staffWise: [StaffSummary] = []
-    @Published var isLoading = false
-    @Published var errorMessage: String?
-    @Published var expandedStaff: Set<Int> = []
-    /// Today by default: the summary is most often opened to check the day's cash.
-    @Published var range: CashDateRange = .today
-
     let access = CashAccess.current
 
-    private var hasLoaded = false
+    /// Today by default: the summary is most often opened to check the day's cash.
+    @Published private(set) var filter = CashFilter(period: .today)
+    @Published private(set) var people: [PersonOption] = []
+    @Published private(set) var data: DenominationSummaryResponse?
+    @Published private(set) var isLoading = true
+    @Published private(set) var isRefreshing = false
+    @Published private(set) var error: String?
+    @Published private(set) var expandedStaff: Set<Int> = []
+    /// Bumped on every successful load, so the counters and bars replay for the new numbers.
+    @Published private(set) var loadVersion = 0
+
     private let service = CashCollectionServiceManager()
     private var cancellables = Set<AnyCancellable>()
+    private var job: AnyCancellable?
+    private var started = false
 
-    /// The summary tab is lazy — it only fetches the first time it is opened.
-    func ensureLoaded() {
-        guard !hasLoaded else { return }
-        load()
-    }
-
-    func load() {
-        guard !isLoading else { return }
-        hasLoaded = true
-        isLoading = true
-        errorMessage = nil
-
-        service.denominationSummary(range: range, staffIds: [])
-            .receive(on: RunLoop.main)
-            .sink { [weak self] completion in
-                guard let self else { return }
-                self.isLoading = false
-                if case .failure(let error) = completion {
-                    self.errorMessage = (error as? RequestError)?.errorString ?? error.localizedDescription
-                }
-            } receiveValue: { [weak self] response in
-                guard let self else { return }
-                self.isLoading = false
-                self.summary = response.summary
-                self.staffWise = response.staffWise
+    init() {
+        if access.canReviewAll {
+            CashPeople.load()
+                .receive(on: RunLoop.main)
+                .sink { _ in } receiveValue: { [weak self] people in self?.people = people }
+                .store(in: &cancellables)
+        }
+        // A collection approved or edited elsewhere changes these totals.
+        CashChange.publisher
+            .sink { [weak self] change in
+                guard let self, change == .collection, self.started else { return }
+                self.load(refresh: true)
             }
             .store(in: &cancellables)
     }
 
-    func rangeChanged(_ newRange: CashDateRange) {
-        range = newRange
-        load()
+    /// The staff filter is a reviewer's tool; everyone else only ever sees their own cash.
+    var canFilterStaff: Bool { access.canReviewAll }
+
+    /// Staff-list names, plus anyone in the current summary the staff list leaves out (admin).
+    var staffOptions: [PersonOption] {
+        cashMergePeople(people, (data?.staffWise ?? []).map { PersonOption(id: $0.staffId, name: $0.staffName, role: "") })
     }
 
-    func toggleStaff(_ staffId: Int) {
+    var staffLabel: String { filter.staffLabel(staffOptions) }
+
+    /// Loads on first show of the tab, not when the Cash Collection screen opens.
+    func ensureLoaded() {
+        guard !started else { return }
+        started = true
+        load(refresh: false)
+    }
+
+    func filterChanged(_ newFilter: CashFilter) {
+        // Today is re-sent even when unchanged: a screen left open overnight means a new day.
+        if newFilter == filter && newFilter.period != .today { return }
+        filter = newFilter
+        expandedStaff = []
+        load(refresh: false)
+    }
+
+    func onlyStaff(_ id: Int) {
+        var next = filter
+        next.staffIds = [id]
+        filterChanged(next)
+    }
+
+    func seeThisMonth() {
+        var next = filter
+        next.period = .month
+        next.month = CashDates.startOfMonth(Date())
+        filterChanged(next)
+    }
+
+    func toggleExpanded(_ staffId: Int) {
         if expandedStaff.contains(staffId) {
             expandedStaff.remove(staffId)
         } else {
@@ -64,34 +91,36 @@ final class DenominationSummaryViewModel: ObservableObject {
         }
     }
 
-    /// The counted denominations, biggest first, with the zero rows dropped.
-    var lines: [SummaryDenomination] {
-        (summary?.denominations ?? [])
-            .filter { $0.qty > 0 }
-            .sorted { $0.total > $1.total }
+    func refresh() {
+        load(refresh: true)
     }
 
-    var notesTotal: Double {
-        total(ofKind: .note)
-    }
-
-    var coinsTotal: Double {
-        total(ofKind: .coin)
-    }
-
-    private func total(ofKind kind: Denomination.Kind) -> Double {
-        let lines: [SummaryDenomination] = summary?.denominations ?? []
-        var sum: Double = 0
-        for line in lines where line.denomination?.kind == kind {
-            sum += line.total
+    private func load(refresh: Bool) {
+        job?.cancel()
+        if refresh && data != nil {
+            isRefreshing = true
+        } else {
+            isLoading = true
         }
-        return sum
-    }
+        error = nil
 
-    var notesShare: Double {
-        let grand = notesTotal + coinsTotal
-        guard grand > 0 else { return 0 }
-        return notesTotal / grand
+        job = service.denominationSummary(range: filter.dates(), staffIds: filter.staffIds)
+            .receive(on: RunLoop.main)
+            .sink { [weak self] completion in
+                guard let self, case .failure(let failure) = completion else { return }
+                // A failed refresh keeps the numbers on screen; a failed first load shows the error.
+                self.isLoading = false
+                self.isRefreshing = false
+                self.error = CashError.message(failure)
+                if !refresh { self.data = nil }
+            } receiveValue: { [weak self] response in
+                guard let self else { return }
+                self.data = response
+                self.isLoading = false
+                self.isRefreshing = false
+                self.error = nil
+                self.loadVersion += 1
+            }
     }
 }
 

@@ -97,15 +97,31 @@ class NetworkServiceManager: NetworkServiceManagable {
                     throw RequestError.invalidResponse
                 }
 
+                let message = Self.serverMessage(from: data)
+                let sentWith = headers.first { $0.key.lowercased() == "authorization" }?.value
+
                 switch httpResponse.statusCode {
                 case 200...299:
+                    // A 2xx can still carry an expiry message: some endpoints answer
+                    // `{status: false, message: "Token has expired"}` with a 200.
+                    if let message {
+                        Task { @MainActor in
+                            SessionManager.shared.checkTokenExpiry(message: message, sentWith: sentWith)
+                        }
+                    }
                     return data
+                case 401:
+                    // The auth middleware's own reply. Its body is a bare "Unauthenticated.", so
+                    // the status code is the only reliable signal — don't wait for the wording.
+                    Task { @MainActor in
+                        SessionManager.shared.handleUnauthorized(sentWith: sentWith)
+                    }
+                    throw RequestError.apiMessage("Your session has expired. Please log in again.")
                 default:
-                    if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                       let message = json["message"] as? String, !message.isEmpty {
+                    if let message {
                         // An expired token ends the session wherever it surfaces, as on Android.
                         Task { @MainActor in
-                            SessionManager.shared.checkTokenExpiry(message: message)
+                            SessionManager.shared.checkTokenExpiry(message: message, sentWith: sentWith)
                         }
                         throw RequestError.apiMessage(message)
                     }
@@ -169,15 +185,31 @@ class NetworkServiceManager: NetworkServiceManagable {
                     throw RequestError.invalidResponse
                 }
 
+                let message = Self.serverMessage(from: data)
+                let sentWith = headers.first { $0.key.lowercased() == "authorization" }?.value
+
                 switch httpResponse.statusCode {
                 case 200...299:
+                    // A 2xx can still carry an expiry message: some endpoints answer
+                    // `{status: false, message: "Token has expired"}` with a 200.
+                    if let message {
+                        Task { @MainActor in
+                            SessionManager.shared.checkTokenExpiry(message: message, sentWith: sentWith)
+                        }
+                    }
                     return data
+                case 401:
+                    // The auth middleware's own reply. Its body is a bare "Unauthenticated.", so
+                    // the status code is the only reliable signal — don't wait for the wording.
+                    Task { @MainActor in
+                        SessionManager.shared.handleUnauthorized(sentWith: sentWith)
+                    }
+                    throw RequestError.apiMessage("Your session has expired. Please log in again.")
                 default:
-                    if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                       let message = json["message"] as? String, !message.isEmpty {
+                    if let message {
                         // An expired token ends the session wherever it surfaces, as on Android.
                         Task { @MainActor in
-                            SessionManager.shared.checkTokenExpiry(message: message)
+                            SessionManager.shared.checkTokenExpiry(message: message, sentWith: sentWith)
                         }
                         throw RequestError.apiMessage(message)
                     }
@@ -186,6 +218,22 @@ class NetworkServiceManager: NetworkServiceManagable {
             }
             .decode(type: T.self, decoder: JSONDecoder())
             .eraseToAnyPublisher()
+    }
+
+    /// `message` arrives as a string on most endpoints and as an array of strings on a few, so
+    /// both shapes are flattened before anything matches against them.
+    private static func serverMessage(from data: Data) -> String? {
+        guard let json = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] else {
+            return nil
+        }
+        if let text = json["message"] as? String, !text.isEmpty {
+            return text
+        }
+        if let list = json["message"] as? [Any] {
+            let text = list.compactMap { $0 as? String }.joined(separator: "\n")
+            if !text.isEmpty { return text }
+        }
+        return nil
     }
 
     private static func multipartBody(

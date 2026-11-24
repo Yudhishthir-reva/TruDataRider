@@ -2,9 +2,12 @@
 //  CollectionDetailViewModel.swift
 //  TrudataRider
 //
+//  Android `CollectionDetailViewModel`: one collection, with review (approve / reject) for a
+//  reviewer and editing the counts for admin.
+//
 
-import Foundation
 import Combine
+import Foundation
 
 enum ReviewAction {
     case approve, reject
@@ -12,178 +15,185 @@ enum ReviewAction {
     var isApprove: Bool { self == .approve }
 }
 
+/// Android `EditState`.
+struct CollectionEditState {
+    var declaredText: String
+    var counts: DenominationCounts
+    var isSaving = false
+
+    var declared: Int { Int(declaredText) ?? 0 }
+    var isBalanced: Bool { declared > 0 && counts.cashTotal == declared }
+}
+
 final class CollectionDetailViewModel: ObservableObject {
-
-    @Published var collection: CashCollection?
-    @Published var isLoading = false
-    @Published var loadError: String?
-
-    // Review
-    @Published var remark = ""
-    @Published var remarkError: String?
-    @Published var isReviewing = false
-    @Published var pendingAction: ReviewAction?
-    @Published var actionError: String?
-    @Published var successMessage: String?
-
-    // Edit
-    @Published var isEditing = false
-    @Published var editDeclaredText = ""
-    @Published var editCounts: DenominationCounts = [:]
-    @Published var isSaving = false
 
     let access = CashAccess.current
 
+    @Published private(set) var collection: CashCollection?
+    @Published private(set) var isLoading = true
+    @Published private(set) var loadError: String?
+    @Published private(set) var remark = ""
+    @Published private(set) var remarkError: String?
+    @Published var pendingAction: ReviewAction?
+    @Published private(set) var isReviewing = false
+    @Published private(set) var edit: CollectionEditState?
+    @Published var actionError: String?
+    @Published var toast: String?
+
     private let collectionId: Int
     private let service = CashCollectionServiceManager()
-    private var cancellables = Set<AnyCancellable>()
+    private var loadJob: AnyCancellable?
+    private var actionJob: AnyCancellable?
 
     init(collectionId: Int) {
         self.collectionId = collectionId
+        load()
     }
 
-    /// Only a pending collection can be reviewed, and only by a role that may review.
-    var canReview: Bool {
-        access.canReviewAll && (collection?.isPending ?? false)
-    }
+    private var status: String? { collection?.status.lowercased() }
 
-    /// Admin can edit a submission that is not approved yet.
-    var canEdit: Bool {
-        access.canEditCollection && (collection?.isApproved == false)
-    }
+    var canReview: Bool { access.canReviewAll && status == CashStatus.pending }
 
-    var editDeclared: Int {
-        Int(editDeclaredText) ?? 0
-    }
+    /// The server refuses edits once approved.
+    var canEdit: Bool { access.canEditCollection && collection != nil && status != CashStatus.approved }
 
-    var editCounted: Int {
-        editCounts.cashTotal
-    }
-
-    var isEditBalanced: Bool {
-        editDeclared > 0 && editCounted == editDeclared
+    var title: String {
+        if edit != nil { return "Edit Collection" }
+        return canReview ? "Review Collection" : "Collection Detail"
     }
 
     // MARK: - Load
 
     func load() {
-        guard !isLoading else { return }
         isLoading = true
         loadError = nil
-
-        service.collectionDetail(id: collectionId)
+        loadJob = service.collectionDetail(id: collectionId)
             .receive(on: RunLoop.main)
             .sink { [weak self] completion in
-                guard let self else { return }
+                guard let self, case .failure(let error) = completion else { return }
                 self.isLoading = false
-                if case .failure(let error) = completion {
-                    self.loadError = (error as? RequestError)?.errorString ?? error.localizedDescription
-                }
+                self.loadError = CashError.message(error)
             } receiveValue: { [weak self] response in
                 guard let self else { return }
                 self.isLoading = false
                 if let collection = response.data {
                     self.collection = collection
                 } else {
-                    self.loadError = response.message.isEmptyString
-                        ? "This collection could not be loaded." : response.message
+                    self.loadError = CashError.server(response.message) ?? CashError.empty
                 }
             }
-            .store(in: &cancellables)
     }
 
     // MARK: - Review
 
-    func requestReview(_ action: ReviewAction) {
-        // A rejection without a reason is no use to the person who submitted it.
-        if action == .reject, remark.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            remarkError = "Add a remark so they know why it was rejected."
-            return
-        }
+    func remarkChanged(_ text: String) {
+        remark = String(text.prefix(250))
         remarkError = nil
-        pendingAction = action
+    }
+
+    func requestReview(_ action: ReviewAction) {
+        // A rejection has to say why, or the person who submitted has nothing to fix.
+        if action == .reject && remark.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            remarkError = "Add a remark saying why it's rejected"
+            actionError = "Add a remark saying why it's rejected. The person who submitted it will see it."
+        } else {
+            pendingAction = action
+        }
     }
 
     func confirmReview() {
-        guard let action = pendingAction, !isReviewing else { return }
+        guard let action = pendingAction else { return }
         pendingAction = nil
         isReviewing = true
+        actionError = nil
 
-        service.reviewCollection(id: collectionId, approve: action.isApprove, remark: remark)
+        actionJob = service.reviewCollection(id: collectionId, approve: action.isApprove, remark: remark)
             .receive(on: RunLoop.main)
             .sink { [weak self] completion in
-                guard let self else { return }
+                guard let self, case .failure(let error) = completion else { return }
+                let message = CashError.message(error)
                 self.isReviewing = false
-                if case .failure(let error) = completion {
-                    self.actionError = (error as? RequestError)?.errorString ?? error.localizedDescription
-                }
+                self.actionError = message
+                // "Only pending collections can be reviewed" means someone else got there first.
+                // Android reloads on that 422; the shared client drops the status code, so any
+                // server-worded refusal reloads here.
+                if message != CashError.offline && message != CashError.generic { self.load() }
             } receiveValue: { [weak self] response in
                 guard let self else { return }
                 self.isReviewing = false
-                if let collection = response.data {
-                    self.collection = collection
-                    self.remark = ""
-                    self.successMessage = action.isApprove ? "Collection approved." : "Collection rejected."
-                } else {
-                    self.actionError = response.message.isEmptyString
-                        ? "The review could not be saved." : response.message
+                guard let reviewed = response.data else {
+                    self.actionError = CashError.server(response.message) ?? CashError.empty
+                    return
                 }
+                CashChange.notify(.collection)
+                self.remark = ""
+                // The review reply has no denominations; keep the ones already shown.
+                if var current = self.collection {
+                    current.status = reviewed.status.isEmpty
+                        ? (action.isApprove ? CashStatus.approved : CashStatus.rejected)
+                        : reviewed.status
+                    current.remark = reviewed.remark
+                    current.reviewedBy = reviewed.reviewedBy ?? current.reviewedBy
+                    self.collection = current
+                }
+                self.toast = CashError.server(response.message)
+                    ?? (action.isApprove ? "Collection approved" : "Collection rejected")
             }
-            .store(in: &cancellables)
     }
 
     // MARK: - Edit
 
-    func startEditing() {
+    func startEdit() {
         guard let collection else { return }
-        editDeclaredText = String(Int(collection.totalAmount.rounded()))
-        editCounts = collection.counts
-        isEditing = true
+        edit = CollectionEditState(
+            declaredText: String(Int(collection.totalAmount)),
+            counts: collection.counts.filter { $0.value > 0 }
+        )
     }
 
-    func cancelEditing() {
-        isEditing = false
-        editCounts = [:]
-        editDeclaredText = ""
+    func cancelEdit() {
+        edit = nil
     }
 
     func editDeclaredChanged(_ text: String) {
-        editDeclaredText = CashCollectionViewModel.digitsOnly(text)
+        edit?.declaredText = cashDigitsOnly(text)
     }
 
     func editCountChanged(_ denomination: Denomination, to count: Int) {
-        editCounts[denomination] = max(0, count)
+        if count <= 0 {
+            edit?.counts.removeValue(forKey: denomination)
+        } else {
+            edit?.counts[denomination] = count
+        }
     }
 
     func saveEdit() {
-        guard !isSaving else { return }
-        guard isEditBalanced else {
-            actionError = "The counts add up to \(CashFormat.rupees(editCounted)), not \(CashFormat.rupees(editDeclared)). Fix the counts or the total."
+        guard let current = edit, !current.isSaving else { return }
+        guard current.isBalanced else {
+            actionError = current.declared <= 0
+                ? "Enter the total cash amount"
+                : "The counts add up to \(CashFormat.rupees(current.counts.cashTotal)), not \(CashFormat.rupees(current.declared))."
             return
         }
+        edit?.isSaving = true
 
-        isSaving = true
-
-        service.editCollection(id: collectionId, declared: editDeclared, counts: editCounts)
+        actionJob = service.editCollection(id: collectionId, declared: current.declared, counts: current.counts)
             .receive(on: RunLoop.main)
             .sink { [weak self] completion in
-                guard let self else { return }
-                self.isSaving = false
-                if case .failure(let error) = completion {
-                    self.actionError = (error as? RequestError)?.errorString ?? error.localizedDescription
-                }
+                guard let self, case .failure(let error) = completion else { return }
+                self.edit?.isSaving = false
+                self.actionError = CashError.message(error)
             } receiveValue: { [weak self] response in
                 guard let self else { return }
-                self.isSaving = false
-                if let collection = response.data {
-                    self.collection = collection
-                    self.isEditing = false
-                    self.successMessage = "Changes saved. The collection is still pending."
-                } else {
-                    self.actionError = response.message.isEmptyString
-                        ? "The changes could not be saved." : response.message
+                guard response.data != nil else {
+                    self.edit?.isSaving = false
+                    self.actionError = CashError.server(response.message) ?? CashError.empty
+                    return
                 }
+                CashChange.notify(.collection)
+                self.edit = nil
+                self.toast = CashError.server(response.message) ?? "Collection updated"
+                self.load()
             }
-            .store(in: &cancellables)
     }
 }

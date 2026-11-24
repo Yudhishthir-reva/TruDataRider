@@ -147,13 +147,18 @@ struct PagedResponse<Item: Decodable>: Decodable {
     var items: [Item]
     var meta: PageMeta
     var message: String
+    /// `status` (or `success`); false is a failure even on HTTP 200. Missing reads as true.
+    var status: Bool
 
     enum CodingKeys: String, CodingKey {
-        case data, meta, message
+        case data, meta, message, status, success
     }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        status = container.decodeBoolLeniently(forKey: .status)
+            ?? container.decodeBoolLeniently(forKey: .success)
+            ?? true
         items = (try? container.decodeIfPresent([Item].self, forKey: .data)) ?? []
         meta = (try? container.decodeIfPresent(PageMeta.self, forKey: .meta))
             ?? PageMeta(total: items.count, currentPage: 1, lastPage: 1)
@@ -434,14 +439,18 @@ struct DenominationSummaryResponse: Decodable {
     var summary: SummaryTotals
     var staffWise: [StaffSummary]
     var message: String
+    var status: Bool
 
     enum CodingKeys: String, CodingKey {
-        case summary, message
+        case summary, message, status, success
         case staffWise = "staff_wise"
     }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        status = container.decodeBoolLeniently(forKey: .status)
+            ?? container.decodeBoolLeniently(forKey: .success)
+            ?? true
         summary = (try? container.decodeIfPresent(SummaryTotals.self, forKey: .summary)) ?? SummaryTotals()
         staffWise = (try? container.decodeIfPresent([StaffSummary].self, forKey: .staffWise)) ?? []
         message = container.decodeStringLeniently(forKey: .message) ?? ""
@@ -558,13 +567,17 @@ struct LedgerResponse: Decodable {
     var summary: LedgerSummary?
     var days: [LedgerDay]
     var message: String
+    var status: Bool
 
     enum CodingKeys: String, CodingKey {
-        case data, meta, summary, days, message
+        case data, meta, summary, days, message, status, success
     }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        status = container.decodeBoolLeniently(forKey: .status)
+            ?? container.decodeBoolLeniently(forKey: .success)
+            ?? true
         entries = (try? container.decodeIfPresent([LedgerEntry].self, forKey: .data)) ?? []
         meta = (try? container.decodeIfPresent(PageMeta.self, forKey: .meta))
             ?? PageMeta(total: entries.count, currentPage: 1, lastPage: 1)
@@ -593,10 +606,18 @@ enum AdvanceStatus {
         [pending, partial, onHold].contains(status.lowercased())
     }
 
+    /// Android `advanceStatusLabel`.
     static func label(_ status: String) -> String {
         switch status.lowercased() {
-        case onHold: return "On hold"
-        default: return status.capitalized
+        case pending: return "Pending"
+        case partial: return "Partial"
+        case completed: return "Completed"
+        case cancelled: return "Cancelled"
+        case onHold: return "On Hold"
+        default:
+            let spaced = status.replacingOccurrences(of: "_", with: " ")
+            guard let first = spaced.first else { return "—" }
+            return first.uppercased() + spaced.dropFirst()
         }
     }
 }
@@ -784,13 +805,17 @@ struct AdvanceListResponse: Decodable {
     var meta: PageMeta
     var summary: AdvanceSummary?
     var message: String
+    var status: Bool
 
     enum CodingKeys: String, CodingKey {
-        case data, meta, summary, message
+        case data, meta, summary, message, status, success
     }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        status = container.decodeBoolLeniently(forKey: .status)
+            ?? container.decodeBoolLeniently(forKey: .success)
+            ?? true
         items = (try? container.decodeIfPresent([AdvanceRecord].self, forKey: .data)) ?? []
         meta = (try? container.decodeIfPresent(PageMeta.self, forKey: .meta))
             ?? PageMeta(total: items.count, currentPage: 1, lastPage: 1)
@@ -1171,18 +1196,21 @@ struct BillRegister: Decodable, Hashable, Identifiable {
 /// `bill-register/list` pages a fixed 10 and puts the paging fields at the top level rather than
 /// under `meta`.
 struct BillRegisterListResponse: Decodable {
+    /// False when the server refused (it still answers 200); the page then shows `message`.
+    var status: Bool
     var items: [BillRegister]
     var meta: PageMeta
     var message: String
 
     enum CodingKeys: String, CodingKey {
-        case data, total, message
+        case status, data, total, message
         case currentPage = "current_page"
         case lastPage = "last_page"
     }
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        status = container.decodeBoolLeniently(forKey: .status) ?? true
         items = (try? container.decodeIfPresent([BillRegister].self, forKey: .data)) ?? []
         meta = PageMeta(
             total: container.decodeIntLeniently(forKey: .total) ?? items.count,
@@ -1222,4 +1250,68 @@ struct BillRegisterCreateResponse: Decodable {
         billRegisterId = (try? container.decodeIfPresent(Payload.self, forKey: .data))?.billRegisterId ?? 0
         message = container.decodeStringLeniently(forKey: .message) ?? ""
     }
+}
+
+/// Android `PersonOption`: someone a register can be assigned to, as the person picker lists them.
+struct PersonOption: Hashable, Identifiable {
+    var id: Int
+    var name: String
+    var role: String
+
+    /// "Name (Role)", or just the name when the role is blank, as the picker field and the create
+    /// summary show it.
+    var nameWithRole: String { role.isEmpty ? name : "\(name) (\(role))" }
+}
+
+/// Android `PeopleState`: the staff list behind the person picker.
+struct PeopleState: Equatable {
+    var items: [PersonOption] = []
+    var isLoading = false
+    var error: String?
+}
+
+/// `staff-list`: `{ status, data: [{ id, name, role_id }] }`, where `role_id` carries the role's
+/// name. Rows without an id or a name can't be assigned anything and are dropped.
+struct StaffPeopleResponse: Decodable {
+    var status: Bool
+    var message: String
+    var people: [PersonOption]
+
+    private struct Row: Decodable {
+        var id: Int
+        var name: String
+        var role: String
+
+        enum CodingKeys: String, CodingKey {
+            case id, name
+            case role = "role_id"
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            id = container.decodeIntLeniently(forKey: .id) ?? 0
+            name = container.decodeStringLeniently(forKey: .name)?.trimmingCharacters(in: .whitespaces) ?? ""
+            role = container.decodeStringLeniently(forKey: .role)?.trimmingCharacters(in: .whitespaces) ?? ""
+        }
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case status, message, data
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        status = container.decodeBoolLeniently(forKey: .status) ?? true
+        message = container.decodeStringLeniently(forKey: .message) ?? ""
+        let rows = (try? container.decodeIfPresent([Row].self, forKey: .data)) ?? []
+        people = rows
+            .filter { $0.id > 0 && !$0.name.isEmpty }
+            .map { PersonOption(id: $0.id, name: $0.name, role: $0.role) }
+    }
+}
+
+extension Notification.Name {
+    /// Android `CashCollectionBus.Change.BillRegister`: a register was created, cleared or
+    /// reassigned, so the list refreshes in place.
+    static let billRegisterChanged = Notification.Name("billRegisterChanged")
 }

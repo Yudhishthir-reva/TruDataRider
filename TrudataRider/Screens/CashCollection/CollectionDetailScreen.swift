@@ -2,6 +2,9 @@
 //  CollectionDetailScreen.swift
 //  TrudataRider
 //
+//  Android `CollectionDetailScreen`: the hero, the denomination breakup, the remarks, and — for a
+//  reviewer — approve / reject, or (admin) editing the counts.
+//
 
 import SwiftUI
 
@@ -18,153 +21,150 @@ struct CollectionDetailScreen: View {
     }
 
     var body: some View {
-        ZStack {
-            CcColors.page.ignoresSafeArea()
+        VStack(spacing: 0) {
+            SellersAppBar(
+                title: viewModel.title,
+                onBack: { if viewModel.edit != nil { viewModel.cancelEdit() } else { dismiss() } },
+                onHome: onHome,
+                onRefresh: viewModel.edit == nil ? { viewModel.load() } : nil
+            )
 
-            VStack(spacing: 0) {
-                SellersAppBar(
-                    title: "Collection",
-                    onBack: { dismiss() },
-                    onHome: onHome,
-                    onRefresh: { viewModel.load() }
-                )
-
-                ScrollView {
-                    VStack(spacing: 10) {
-                        if viewModel.isLoading && viewModel.collection == nil {
-                            CcLoadingBlock()
-                        } else if let loadError = viewModel.loadError, viewModel.collection == nil {
-                            CcErrorState(message: loadError) { viewModel.load() }
-                        } else if let collection = viewModel.collection {
-                            if viewModel.isEditing {
-                                editNotice
-                                DenominationFormView(
-                                    declaredText: $viewModel.editDeclaredText,
-                                    counts: viewModel.editCounts,
-                                    onDeclaredChange: { viewModel.editDeclaredChanged($0) },
-                                    onCountChange: { viewModel.editCountChanged($0, to: $1) }
-                                )
-                            } else {
-                                hero(collection)
-                                breakup(collection)
-                                submitRemark(collection)
-                                reviewInfo(collection)
-                                reviewRemarkField
-                            }
-                        }
-
-                        // Clears the pinned action bar.
-                        if actionBarIsVisible {
-                            Color.clear.frame(height: 80)
-                        }
-                    }
-                    .padding(12)
+            ScrollView {
+                VStack(spacing: 10) {
+                    content
                 }
+                .padding(12)
             }
-
-            if actionBarIsVisible {
-                VStack {
-                    Spacer()
-                    actionBar
-                }
-            }
+            .scrollDismissesKeyboard(.interactively)
+            .safeAreaInset(edge: .bottom, spacing: 0) { actionBar }
         }
+        .background(CcColors.page.ignoresSafeArea())
         .navigationBarHidden(true)
-        .onAppear {
-            if viewModel.collection == nil {
-                viewModel.load()
+        .cashToast($viewModel.toast)
+        .overlay { dialogs }
+    }
+
+    @ViewBuilder
+    private var content: some View {
+        if viewModel.isLoading && viewModel.collection == nil {
+            CcLoadingBlock()
+        } else if let error = viewModel.loadError, viewModel.collection == nil {
+            CashErrorState(message: error) { viewModel.load() }
+        } else if let collection = viewModel.collection {
+            if let edit = viewModel.edit {
+                EditNotice()
+                DenominationFormView(
+                    declaredText: edit.declaredText,
+                    counts: edit.counts,
+                    onDeclaredChange: { viewModel.editDeclaredChanged($0) },
+                    onCountChange: { viewModel.editCountChanged($0, to: $1) }
+                )
+            } else {
+                DetailHero(collection: collection)
+                Breakup(collection: collection)
+                if let remark = collection.submitRemark, !remark.isEmptyString {
+                    CashSection(title: "Submit remark", systemImage: "text.bubble") {
+                        Text(remark)
+                            .font(.system(size: 13))
+                            .foregroundStyle(CcColors.textMuted)
+                    }
+                }
+                if !(collection.remark ?? "").isEmptyString || collection.reviewedBy != nil {
+                    ReviewInfo(collection: collection)
+                }
+                if viewModel.canReview {
+                    CashSection(title: "Remark", systemImage: "text.bubble", subtitle: "Required when rejecting") {
+                        CashTextField(
+                            text: .constant(viewModel.remark),
+                            placeholder: "e.g. Verified with the cash in hand",
+                            error: viewModel.remarkError,
+                            minLines: 2,
+                            onChange: { viewModel.remarkChanged($0) }
+                        )
+                    }
+                }
             }
-        }
-        .alert(confirmTitle, isPresented: Binding(
-            get: { viewModel.pendingAction != nil },
-            set: { if !$0 { viewModel.pendingAction = nil } }
-        )) {
-            Button("Cancel", role: .cancel) { viewModel.pendingAction = nil }
-            Button(viewModel.pendingAction?.isApprove == true ? "Approve" : "Reject") {
-                viewModel.confirmReview()
-            }
-        } message: {
-            Text(confirmBody)
-        }
-        .alert("Can't continue", isPresented: Binding(
-            get: { viewModel.actionError != nil },
-            set: { if !$0 { viewModel.actionError = nil } }
-        )) {
-            Button("OK", role: .cancel) { viewModel.actionError = nil }
-        } message: {
-            Text(viewModel.actionError ?? "")
-        }
-        .alert("Done", isPresented: Binding(
-            get: { viewModel.successMessage != nil },
-            set: { if !$0 { viewModel.successMessage = nil } }
-        )) {
-            Button("OK") { viewModel.successMessage = nil }
-        } message: {
-            Text(viewModel.successMessage ?? "")
         }
     }
 
     // MARK: - Action bar
 
-    private var actionBarIsVisible: Bool {
-        viewModel.isEditing || viewModel.canReview || viewModel.canEdit
-    }
-
     @ViewBuilder
     private var actionBar: some View {
-        CcBottomActionBar {
-            if viewModel.isEditing {
-                CcSecondaryButton(title: "Cancel", systemImage: "xmark", tint: CcColors.textMuted) {
-                    viewModel.cancelEditing()
+        if let edit = viewModel.edit {
+            CashActionTray {
+                CashCountSummary(declared: edit.declared, counts: edit.counts)
+            } buttons: {
+                CashSecondaryButton(title: "Cancel", systemImage: "xmark", color: CcColors.textMuted) {
+                    viewModel.cancelEdit()
                 }
-                CcPrimaryButton(title: "Save changes", systemImage: "checkmark", isLoading: viewModel.isSaving) {
+                .containerRelativeFrame(.horizontal) { width, _ in (width - 42) * 0.34 }
+                CashPrimaryButton(title: "Save changes", systemImage: "checkmark", isLoading: edit.isSaving) {
                     viewModel.saveEdit()
                 }
-            } else if viewModel.canReview {
-                CcSecondaryButton(
-                    title: "Reject",
-                    systemImage: "xmark",
-                    tint: CcColors.err,
-                    isEnabled: !viewModel.isReviewing
-                ) {
+            }
+        } else if viewModel.canReview {
+            CashActionTray {
+                CashBarSummary(
+                    label: "From \(viewModel.collection?.submittedBy?.name ?? "—")",
+                    value: CashFormat.rupees(viewModel.collection?.totalAmount ?? 0)
+                )
+            } buttons: {
+                if viewModel.canEdit {
+                    CashIconActionButton(systemImage: "pencil", label: "Edit counts", color: CcColors.text) {
+                        viewModel.startEdit()
+                    }
+                }
+                CashSecondaryButton(title: "Reject", systemImage: "xmark", color: CcColors.err, isEnabled: !viewModel.isReviewing) {
                     viewModel.requestReview(.reject)
                 }
-                CcPrimaryButton(
-                    title: "Approve",
-                    systemImage: "checkmark",
-                    isLoading: viewModel.isReviewing
-                ) {
+                CashPrimaryButton(title: "Approve", systemImage: "checkmark", isLoading: viewModel.isReviewing) {
                     viewModel.requestReview(.approve)
                 }
-            } else if viewModel.canEdit {
-                CcSecondaryButton(title: "Edit counts", systemImage: "pencil") {
-                    viewModel.startEditing()
+            }
+        } else if viewModel.canEdit {
+            CashActionTray {
+                CashPrimaryButton(title: "Edit collection", systemImage: "pencil") {
+                    viewModel.startEdit()
                 }
             }
         }
     }
 
-    private var confirmTitle: String {
-        let amount = CashFormat.rupees(viewModel.collection?.totalAmount ?? 0)
-        return viewModel.pendingAction?.isApprove == true ? "Approve \(amount)?" : "Reject \(amount)?"
-    }
+    // MARK: - Dialogs
 
-    private var confirmBody: String {
-        let amount = CashFormat.rupees(viewModel.collection?.totalAmount ?? 0)
-        let who = viewModel.collection?.submittedBy?.name ?? "this person"
-        if viewModel.pendingAction?.isApprove == true {
-            return "This confirms you received \(amount) from \(who). Approved collections can't be edited."
+    @ViewBuilder
+    private var dialogs: some View {
+        if let error = viewModel.actionError {
+            CashErrorDialog(message: error) { viewModel.actionError = nil }
+        } else if let action = viewModel.pendingAction {
+            let amount = CashFormat.rupees(viewModel.collection?.totalAmount ?? 0)
+            let who = viewModel.collection?.submittedBy?.name ?? "this person"
+            CashConfirmDialog(
+                title: action.isApprove ? "Approve \(amount)?" : "Reject \(amount)?",
+                message: action.isApprove
+                    ? "This confirms you received \(amount) from \(who). Approved collections can't be edited."
+                    : "\(who) will see it as rejected with your remark.",
+                confirmTitle: action.isApprove ? "Approve" : "Reject",
+                systemImage: action.isApprove ? "checkmark" : "xmark",
+                confirmColor: action.isApprove ? CcColors.primary : CcColors.err,
+                onConfirm: { viewModel.confirmReview() },
+                onDismiss: { viewModel.pendingAction = nil }
+            )
         }
-        return "\(who) will see it as rejected with your remark."
     }
+}
 
-    // MARK: - Sections
+// MARK: - Sections
 
-    private func hero(_ collection: CashCollection) -> some View {
-        CcHero {
+private struct DetailHero: View {
+    let collection: CashCollection
+
+    var body: some View {
+        CashHero {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 4) {
-                    CcHeroLabel(text: "Collection #\(collection.id)")
+                    CashHeroLabel(text: "Collection #\(collection.id)")
                     Text(CashFormat.rupees(collection.totalAmount))
                         .font(.system(size: 28, weight: .heavy))
                         .foregroundStyle(.white)
@@ -172,178 +172,109 @@ struct CollectionDetailScreen: View {
                 Spacer(minLength: 8)
                 CcStatusPill(status: collection.status)
             }
-
-            if let name = collection.submittedBy?.name, !name.isEmpty {
-                Text("Submitted by \(name)")
+            if let submitter = collection.submittedBy {
+                Text("Submitted by \(submitter.name)")
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(.white)
+                    .padding(.top, 4)
             }
-            if let submittedAt = collection.submittedAt, !submittedAt.isEmpty {
+            if let submittedAt = collection.submittedAt {
                 Text(submittedAt)
                     .font(.system(size: 12))
                     .foregroundStyle(.white.opacity(0.8))
             }
         }
     }
+}
 
-    private func breakup(_ collection: CashCollection) -> some View {
-        // Zero rows are noise on a read-only breakup; the ones that were counted are what matters.
-        let lines = collection.denominations.filter { $0.qty > 0 && $0.denomination != nil }
+private struct Breakup: View {
+    let collection: CashCollection
 
-        return CcSection(title: "Denomination details", systemImage: "banknote") {
+    var body: some View {
+        let lines = collection.denominations.compactMap { line in line.denomination.map { ($0, line) } }
+        CashSection(title: "Denomination details", systemImage: "banknote") {
             if lines.isEmpty {
                 Text("No denomination breakup was sent for this collection.")
                     .font(.system(size: 13))
                     .foregroundStyle(CcColors.textMuted)
             } else {
-                VStack(spacing: 6) {
+                HStack(spacing: 0) {
+                    Text("Currency").frame(width: 70, alignment: .leading)
+                    Text("Quantity").frame(maxWidth: .infinity, alignment: .center)
+                    Text("Total").frame(width: 96, alignment: .trailing)
+                }
+                .font(.system(size: 11))
+                .foregroundStyle(CcColors.textFaint)
+
+                // Zero rows are noise on a read-only breakup; the ones that were counted are what matters.
+                let counted = lines.filter { $0.1.qty > 0 }
+                ForEach(counted.indices, id: \.self) { index in
+                    let (denomination, line) = counted[index]
                     HStack(spacing: 0) {
-                        Text("Currency").frame(width: 70, alignment: .leading)
-                        Text("Quantity").frame(maxWidth: .infinity, alignment: .center)
-                        Text("Total").frame(width: 96, alignment: .trailing)
-                    }
-                    .font(.system(size: 11))
-                    .foregroundStyle(CcColors.textFaint)
-
-                    ForEach(lines) { line in
-                        BreakupRow(line: line)
-                    }
-
-                    Divider().background(CcColors.divider)
-
-                    HStack {
-                        Text("Total")
-                            .font(.system(size: 14, weight: .bold))
+                        DenominationBadge(denomination: denomination)
+                            .frame(width: 70, alignment: .leading)
+                        VStack(spacing: 1) {
+                            Text("\(line.qty)")
+                                .font(.system(size: 14, weight: .bold))
+                                .foregroundStyle(CcColors.text)
+                            if denomination.kind == .note && line.qty >= 100 {
+                                Text(cashBundleText(line.qty))
+                                    .font(.system(size: 10))
+                                    .foregroundStyle(CcColors.textFaint)
+                            }
+                        }
+                        .frame(maxWidth: .infinity)
+                        Text(CashFormat.rupees(line.total))
+                            .font(.system(size: 13.5, weight: .bold))
                             .foregroundStyle(CcColors.text)
-                        Spacer()
-                        Text(CashFormat.rupees(lines.reduce(0) { $0 + $1.total }))
-                            .font(.system(size: 15, weight: .heavy))
-                            .foregroundStyle(CcColors.primary)
+                            .frame(width: 96, alignment: .trailing)
                     }
+                }
+
+                CcColors.divider.frame(height: 1)
+
+                HStack {
+                    Text("Total")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(CcColors.text)
+                    Spacer()
+                    Text(CashFormat.rupees(lines.reduce(0) { $0 + $1.1.total }))
+                        .font(.system(size: 15, weight: .heavy))
+                        .foregroundStyle(CcColors.primary)
                 }
             }
         }
-    }
-
-    @ViewBuilder
-    private func submitRemark(_ collection: CashCollection) -> some View {
-        if let remark = collection.submitRemark, !remark.isEmptyString {
-            CcSection(title: "Submit remark", systemImage: "square.and.pencil") {
-                Text(remark)
-                    .font(.system(size: 13))
-                    .foregroundStyle(CcColors.textMuted)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private func reviewInfo(_ collection: CashCollection) -> some View {
-        let hasRemark = !(collection.remark ?? "").isEmptyString
-        if hasRemark || collection.reviewedBy != nil {
-            CcSection(title: "Review", systemImage: "info.circle", accent: CcColors.info) {
-                VStack(alignment: .leading, spacing: 4) {
-                    if let name = collection.reviewedBy?.name, !name.isEmpty {
-                        Text("Reviewed by \(name)")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(CcColors.text)
-                    }
-                    if let remark = collection.remark, !remark.isEmptyString {
-                        Text("“\(remark)”")
-                            .font(.system(size: 13))
-                            .foregroundStyle(CcColors.textMuted)
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var reviewRemarkField: some View {
-        if viewModel.canReview {
-            CcSection(title: "Remark", systemImage: "square.and.pencil") {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Required when rejecting")
-                        .font(.system(size: 11.5))
-                        .foregroundStyle(CcColors.textMuted)
-
-                    TextField("e.g. Verified with the cash in hand", text: $viewModel.remark, axis: .vertical)
-                        .lineLimit(2...4)
-                        .font(.system(size: 14))
-                        .padding(10)
-                        .background(.white, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                                .stroke(viewModel.remarkError == nil ? CcColors.border : CcColors.err, lineWidth: 1)
-                        )
-
-                    if let remarkError = viewModel.remarkError {
-                        Text(remarkError)
-                            .font(.system(size: 11.5, weight: .semibold))
-                            .foregroundStyle(CcColors.err)
-                    }
-                }
-            }
-        }
-    }
-
-    private var editNotice: some View {
-        HStack(spacing: 8) {
-            Image(systemName: "pencil")
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(CcColors.warn)
-            Text("Change the counts or the total. They must still add up. The collection stays pending after saving.")
-                .font(.system(size: 12.5))
-                .foregroundStyle(CcColors.warn)
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(12)
-        .background(CcColors.warnBg, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 }
 
-private struct BreakupRow: View {
-    let line: DenominationLine
+private struct ReviewInfo: View {
+    let collection: CashCollection
 
     var body: some View {
-        HStack(spacing: 0) {
-            Group {
-                if let denomination = line.denomination {
-                    DenominationBadge(denomination: denomination)
-                } else {
-                    Text(line.label)
-                        .font(.system(size: 13, weight: .bold))
-                        .foregroundStyle(CcColors.text)
-                }
-            }
-            .frame(width: 70, alignment: .leading)
-
-            VStack(spacing: 1) {
-                Text(String(line.qty))
-                    .font(.system(size: 14, weight: .bold))
+        CashSection(title: "Review", systemImage: "info.circle.fill", accent: CcColors.info) {
+            if let reviewer = collection.reviewedBy {
+                Text("Reviewed by \(reviewer.name)")
+                    .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(CcColors.text)
-                if line.denomination?.kind == .note, line.qty >= 100 {
-                    Text(DenominationBundle.text(line.qty))
-                        .font(.system(size: 10))
-                        .foregroundStyle(CcColors.textFaint)
-                }
             }
-            .frame(maxWidth: .infinity)
-
-            Text(CashFormat.rupees(line.total))
-                .font(.system(size: 13.5, weight: .bold))
-                .foregroundStyle(CcColors.text)
-                .frame(width: 96, alignment: .trailing)
+            if let remark = collection.remark, !remark.isEmptyString {
+                Text("“\(remark)”")
+                    .font(.system(size: 13))
+                    .foregroundStyle(CcColors.textMuted)
+            }
         }
     }
 }
 
-/// Notes come in bundles of 100; showing that makes a miscount of a whole bundle obvious.
-enum DenominationBundle {
-    static func text(_ count: Int) -> String {
-        let bundles = count / 100
-        let loose = count % 100
-        return "\(bundles) bundle\(bundles > 1 ? "s" : "")" + (loose > 0 ? " + \(loose)" : "")
+private struct EditNotice: View {
+    var body: some View {
+        HStack(spacing: 8) {
+            Image(systemName: "pencil")
+                .font(.system(size: 18, weight: .semibold))
+            Text("Change the counts or the total. They must still add up. The collection stays pending after saving.")
+                .font(.system(size: 12.5))
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .foregroundStyle(CcColors.warn)
     }
 }

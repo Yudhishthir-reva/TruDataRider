@@ -36,7 +36,7 @@ final class CashCollectionServiceManager {
         if !trimmed.isEmpty {
             params["remark"] = trimmed
         }
-        return networkService.request(APIRouter.cashCollectionSubmit, params: params, headers: authHeaders)
+        return cashRequest(APIRouter.cashCollectionSubmit, params: params)
     }
 
     func editCollection(
@@ -46,7 +46,7 @@ final class CashCollectionServiceManager {
     ) -> AnyPublisher<DataResponse<CashCollection>, Error> {
         var params = denominationBody(declared: declared, counts: counts)
         params["id"] = id
-        return networkService.request(APIRouter.cashCollectionEdit, params: params, headers: authHeaders)
+        return cashRequest(APIRouter.cashCollectionEdit, params: params)
     }
 
     /// The caller's own collections.
@@ -57,7 +57,7 @@ final class CashCollectionServiceManager {
     ) -> AnyPublisher<PagedResponse<CashCollection>, Error> {
         var params: [String: Any] = ["per_page": perPage, "page": page]
         params.putRange(range)
-        return networkService.request(APIRouter.cashCollectionMyList, params: params, headers: authHeaders)
+        return cashRequest(APIRouter.cashCollectionMyList, params: params)
     }
 
     /// Everyone's collections. A nil `status` asks for every status; an empty `staffIds` for every person.
@@ -74,11 +74,11 @@ final class CashCollectionServiceManager {
         if let status {
             params["status"] = status
         }
-        return networkService.request(APIRouter.cashCollectionAllList, params: params, headers: authHeaders)
+        return cashRequest(APIRouter.cashCollectionAllList, params: params)
     }
 
     func collectionDetail(id: Int) -> AnyPublisher<DataResponse<CashCollection>, Error> {
-        networkService.request(APIRouter.cashCollectionDetail, params: ["id": id], headers: authHeaders)
+        cashRequest(APIRouter.cashCollectionDetail, params: ["id": id])
     }
 
     func reviewCollection(
@@ -94,7 +94,7 @@ final class CashCollectionServiceManager {
         if !trimmed.isEmpty {
             params["remark"] = trimmed
         }
-        return networkService.request(APIRouter.cashCollectionReview, params: params, headers: authHeaders)
+        return cashRequest(APIRouter.cashCollectionReview, params: params)
     }
 
     // MARK: - Amount taken
@@ -123,7 +123,7 @@ final class CashCollectionServiceManager {
         if let collectionId {
             params["collection_id"] = collectionId
         }
-        return networkService.request(APIRouter.amountTakenAdd, params: params, headers: authHeaders)
+        return cashRequest(APIRouter.amountTakenAdd, params: params)
     }
 
     func amountTakenList(
@@ -135,7 +135,7 @@ final class CashCollectionServiceManager {
         var params: [String: Any] = ["per_page": perPage, "page": page]
         params.putRange(range)
         params.putStaff(staffIds)
-        return networkService.request(APIRouter.amountTakenList, params: params, headers: authHeaders)
+        return cashRequest(APIRouter.amountTakenList, params: params)
     }
 
     func updateAmountTakenStatus(id: Int, approve: Bool) -> AnyPublisher<DataResponse<AmountTaken>, Error> {
@@ -143,7 +143,7 @@ final class CashCollectionServiceManager {
             "id": id,
             "status": approve ? CashStatus.approved : CashStatus.rejected
         ]
-        return networkService.request(APIRouter.amountTakenUpdateStatus, params: params, headers: authHeaders)
+        return cashRequest(APIRouter.amountTakenUpdateStatus, params: params)
     }
 
     // MARK: - Summary and ledger
@@ -162,7 +162,7 @@ final class CashCollectionServiceManager {
         params.putStaff(staffIds)
         // An all-time, all-staff summary sends an empty body; the shared client then skips the
         // Content-Type header, which this endpoint is fine with.
-        return networkService.request(APIRouter.denominationSummary, params: params, headers: authHeaders)
+        return cashRequest(APIRouter.denominationSummary, params: params)
     }
 
     /// Collections in and amounts taken out, newest first, with filter-wide totals and per-day totals.
@@ -176,7 +176,7 @@ final class CashCollectionServiceManager {
         var params: [String: Any] = ["per_page": perPage, "page": page]
         params.putRange(range)
         params.putStaff(staffIds)
-        return networkService.request(APIRouter.cashLedger, params: params, headers: authHeaders)
+        return cashRequest(APIRouter.cashLedger, params: params)
     }
 
     // MARK: - Payment advance
@@ -198,13 +198,7 @@ final class CashCollectionServiceManager {
         if !trimmed.isEmpty {
             params["purpose"] = trimmed
         }
-        return networkService.uploadMultipart(
-            APIRouter.advanceGive,
-            params: params,
-            file: attachment,
-            files: attachment.map { [$0] } ?? [],
-            headers: authHeaders
-        )
+        return cashUpload(APIRouter.advanceGive, params: params, attachment: attachment)
     }
 
     /// Money coming back against an advance; the server moves it to partial or completed.
@@ -224,13 +218,7 @@ final class CashCollectionServiceManager {
         if !trimmed.isEmpty {
             params["remark"] = trimmed
         }
-        return networkService.uploadMultipart(
-            APIRouter.advanceReceive,
-            params: params,
-            file: attachment,
-            files: attachment.map { [$0] } ?? [],
-            headers: authHeaders
-        )
+        return cashUpload(APIRouter.advanceReceive, params: params, attachment: attachment)
     }
 
     /// Everyone's advances and returns (manager roles).
@@ -256,7 +244,7 @@ final class CashCollectionServiceManager {
         if !search.isEmpty {
             params["search"] = search
         }
-        return networkService.request(APIRouter.advanceAllList, params: params, headers: authHeaders)
+        return cashRequest(APIRouter.advanceAllList, params: params)
     }
 
     /// The caller's own advances and returns (sale person, rider). Status, role and search don't apply.
@@ -271,20 +259,16 @@ final class CashCollectionServiceManager {
             "page": page
         ]
         params.putRange(query.range)
-        return networkService.request(APIRouter.advanceMyList, params: params, headers: authHeaders)
+        return cashRequest(APIRouter.advanceMyList, params: params)
     }
 
     /// One advance with every payment returned against it.
     func advanceDetail(id: Int) -> AnyPublisher<DataResponse<Advance>, Error> {
-        networkService.request(APIRouter.advanceDetail, params: ["id": id], headers: authHeaders)
+        cashRequest(APIRouter.advanceDetail, params: ["id": id])
     }
 
     func updateAdvanceStatus(id: Int, status: String) -> AnyPublisher<DataResponse<Advance>, Error> {
-        networkService.request(
-            APIRouter.advanceUpdateStatus,
-            params: ["id": id, "status": status],
-            headers: authHeaders
-        )
+        cashRequest(APIRouter.advanceUpdateStatus, params: ["id": id, "status": status])
     }
 
     // MARK: - Bill register
@@ -354,6 +338,13 @@ final class CashCollectionServiceManager {
         )
     }
 
+    /// Who a register can be assigned to. Android's rider host has no staff list of its own (only the
+    /// manager screens ask, and a rider never sees them); the sales app reads `staff-list`, so this
+    /// does too, and the person picker works if a manager role ever signs in here.
+    func billPeople() -> AnyPublisher<StaffPeopleResponse, Error> {
+        networkService.request(APIRouter.staffList, params: [:], headers: authHeaders)
+    }
+
     /// Clears `orderIds`, or every pending order when it is nil; the register clears itself once all are.
     func clearBillRegister(id: Int, orderIds: Set<Int>?) -> AnyPublisher<StatusMessageResponse, Error> {
         var params: [String: Any] = ["bill_register_id": id]
@@ -364,6 +355,32 @@ final class CashCollectionServiceManager {
     }
 
     // MARK: - Request building
+
+    /// Every cash and advance call goes through here: `{status:false}` becomes a failure, and the
+    /// failure carries Android's wording (`CashCollectionApi.send`).
+    private func cashRequest<T: Decodable & CashServerReply>(
+        _ endpoint: RouterManagable,
+        params: [String: Any]
+    ) -> AnyPublisher<T, Error> {
+        let raw: AnyPublisher<T, Error> = networkService.request(endpoint, params: params, headers: authHeaders)
+        return raw.cashChecked()
+    }
+
+    /// multipart/form-data, for the calls that can carry an attachment (sent as `attachment`).
+    private func cashUpload<T: Decodable & CashServerReply>(
+        _ endpoint: RouterManagable,
+        params: [String: Any],
+        attachment: MultipartFileUpload?
+    ) -> AnyPublisher<T, Error> {
+        let raw: AnyPublisher<T, Error> = networkService.uploadMultipart(
+            endpoint,
+            params: params,
+            file: attachment,
+            files: attachment.map { [$0] } ?? [],
+            headers: authHeaders
+        )
+        return raw.cashChecked()
+    }
 
     private func denominationBody(declared: Int, counts: DenominationCounts) -> [String: Any] {
         var params: [String: Any] = ["total_cash_amount": declared]

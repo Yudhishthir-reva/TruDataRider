@@ -2,9 +2,13 @@
 //  CashCollectionViewModel.swift
 //  TrudataRider
 //
+//  Android `CashCollectionViewModel`: the Submit tab and the list tab. The list is the user's own
+//  submissions for a sale person or rider, and everyone's for a reviewer (admin, accountant, sales
+//  manager).
+//
 
-import Foundation
 import Combine
+import Foundation
 
 enum CollectionTab: Hashable {
     case submit, list, summary
@@ -14,77 +18,114 @@ final class CashCollectionViewModel: ObservableObject {
 
     // MARK: - Tab
 
-    @Published var tab: CollectionTab = .submit
+    @Published private(set) var tab: CollectionTab = .submit
 
     // MARK: - Submit form
 
-    @Published var declaredText = ""
-    @Published var counts: DenominationCounts = [:]
-    @Published var remark = ""
-    @Published var declaredError: String?
-    @Published var isSubmitting = false
+    @Published private(set) var declaredText = ""
+    @Published private(set) var counts: DenominationCounts = [:]
+    @Published private(set) var remark = ""
+    @Published private(set) var declaredError: String?
     @Published var isConfirming = false
-    @Published var submitted: CashCollection?
+    @Published private(set) var isSubmitting = false
     @Published var formError: String?
+    @Published private(set) var submitted: CashCollection?
 
     // MARK: - List
 
-    @Published var collections: [CashCollection] = []
-    @Published var isLoadingList = false
-    @Published var isLoadingMore = false
-    @Published var listError: String?
-    @Published var statusFilter: String?
-    @Published var range: CashDateRange = .allTime
+    @Published private(set) var filter = CashFilter(period: .month)
+    /// Names for the staff filter; reviewers only.
+    @Published private(set) var people: [PersonOption] = []
+    /// Only offered to reviewers; nil means every status.
+    @Published private(set) var statusFilter: String?
+    @Published private(set) var list = CashListState<CashCollection>()
 
     let access = CashAccess.current
 
-    private var page = 1
-    private var hasMore = false
     private let service = CashCollectionServiceManager()
     private var cancellables = Set<AnyCancellable>()
+    private var submitJob: AnyCancellable?
+
+    private lazy var pager = CashPager<CashCollection>(
+        read: { [weak self] in self?.list },
+        write: { [weak self] change in
+            guard let self else { return }
+            change(&self.list)
+        },
+        fetch: { [weak self] page in
+            guard let self else { return Empty().eraseToAnyPublisher() }
+            return self.fetch(page: page)
+        }
+    )
+
+    init() {
+        if access.canReviewAll {
+            CashPeople.load()
+                .receive(on: RunLoop.main)
+                .sink { _ in } receiveValue: { [weak self] people in self?.people = people }
+                .store(in: &cancellables)
+        }
+        CashChange.publisher
+            .sink { [weak self] change in
+                guard let self, change == .collection, self.list.loaded else { return }
+                self.pager.load(refresh: true)
+            }
+            .store(in: &cancellables)
+    }
 
     // MARK: - Derived form state
 
-    var declared: Int {
-        Int(declaredText) ?? 0
-    }
+    var declared: Int { Int(declaredText) ?? 0 }
 
-    var counted: Int {
-        counts.cashTotal
-    }
+    var counted: Int { counts.cashTotal }
 
-    var isBalanced: Bool {
-        declared > 0 && counted == declared
-    }
+    var isBalanced: Bool { declared > 0 && counted == declared }
 
-    var noteCount: Int {
-        counts.pieces(ofKind: .note)
-    }
-
-    var coinCount: Int {
-        counts.pieces(ofKind: .coin)
-    }
+    var pieces: Int { counts.values.reduce(0, +) }
 
     var listTitle: String {
         access.canReviewAll ? "All Collection" : "My Collection"
     }
 
-    // MARK: - Form actions
+    /// Staff-list names, plus anyone in the loaded rows the staff list leaves out.
+    var staffOptions: [PersonOption]? {
+        guard access.canReviewAll else { return nil }
+        let seen = list.items.compactMap { item in
+            item.submittedBy.map { PersonOption(id: $0.id, name: $0.name, role: "") }
+        }
+        return cashMergePeople(people, seen)
+    }
 
-    /// Keeps only digits, drops leading zeros, and caps the length so a count can't overflow.
-    static func digitsOnly(_ input: String, maxLength: Int = 9) -> String {
-        String(input.filter(\.isNumber).drop(while: { $0 == "0" }).prefix(maxLength))
+    var emptyText: String {
+        access.canReviewAll
+            ? "No collections were submitted \(filter.periodPhrase)."
+            : "You haven't submitted any cash \(filter.periodPhrase)."
+    }
+
+    // MARK: - Tab and form actions
+
+    func selectTab(_ newTab: CollectionTab) {
+        tab = newTab
+        if newTab == .list && !list.loaded { pager.load() }
     }
 
     func declaredChanged(_ text: String) {
-        declaredText = Self.digitsOnly(text)
+        declaredText = cashDigitsOnly(text)
         declaredError = nil
         formError = nil
     }
 
     func countChanged(_ denomination: Denomination, to count: Int) {
-        counts[denomination] = max(0, count)
+        if count <= 0 {
+            counts.removeValue(forKey: denomination)
+        } else {
+            counts[denomination] = count
+        }
         formError = nil
+    }
+
+    func remarkChanged(_ text: String) {
+        remark = String(text.prefix(250))
     }
 
     func clearForm() {
@@ -92,7 +133,9 @@ final class CashCollectionViewModel: ObservableObject {
         counts = [:]
         remark = ""
         declaredError = nil
+        isConfirming = false
         formError = nil
+        submitted = nil
     }
 
     /// The server rejects a submission whose counts don't add up to the declared total, so the
@@ -116,103 +159,60 @@ final class CashCollectionViewModel: ObservableObject {
         isSubmitting = true
         formError = nil
 
-        service.submitCollection(declared: declared, counts: counts, remark: remark)
+        submitJob = service.submitCollection(declared: declared, counts: counts, remark: remark)
             .receive(on: RunLoop.main)
             .sink { [weak self] completion in
                 guard let self else { return }
-                self.isSubmitting = false
                 if case .failure(let error) = completion {
-                    self.formError = (error as? RequestError)?.errorString ?? error.localizedDescription
+                    self.isSubmitting = false
+                    self.formError = CashError.message(error)
                 }
             } receiveValue: { [weak self] response in
                 guard let self else { return }
                 self.isSubmitting = false
-                if response.status, let collection = response.data {
+                if let collection = response.data {
                     self.submitted = collection
-                    self.clearForm()
                 } else {
-                    self.formError = response.message.isEmptyString
-                        ? "The submission could not be saved." : response.message
+                    self.formError = CashError.server(response.message) ?? CashError.empty
                 }
             }
-            .store(in: &cancellables)
     }
 
-    /// Called when the "cash submitted" sheet is dismissed: the new row belongs at the top of the list.
-    func dismissSubmitted() {
-        submitted = nil
-        loadList(refresh: true)
+    /// The "Cash submitted" pop-up was closed: the form starts over and the list shows the new row.
+    func acknowledgeSubmitted() {
+        clearForm()
+        tab = .list
+        pager.load(refresh: !list.items.isEmpty)
     }
 
     // MARK: - List actions
 
-    func loadList(refresh: Bool = false) {
-        if refresh {
-            page = 1
-        }
-        guard !isLoadingList else { return }
-
-        isLoadingList = true
-        listError = nil
-
-        listPublisher(page: 1)
-            .receive(on: RunLoop.main)
-            .sink { [weak self] completion in
-                guard let self else { return }
-                self.isLoadingList = false
-                if case .failure(let error) = completion {
-                    self.listError = (error as? RequestError)?.errorString ?? error.localizedDescription
-                }
-            } receiveValue: { [weak self] response in
-                guard let self else { return }
-                self.isLoadingList = false
-                self.collections = response.items
-                self.page = response.meta.currentPage
-                self.hasMore = response.hasMore
-            }
-            .store(in: &cancellables)
-    }
-
-    func loadMore() {
-        guard hasMore, !isLoadingList, !isLoadingMore else { return }
-
-        isLoadingMore = true
-        let next = page + 1
-
-        listPublisher(page: next)
-            .receive(on: RunLoop.main)
-            .sink { [weak self] completion in
-                guard let self else { return }
-                self.isLoadingMore = false
-                if case .failure(let error) = completion {
-                    self.listError = (error as? RequestError)?.errorString ?? error.localizedDescription
-                }
-            } receiveValue: { [weak self] response in
-                guard let self else { return }
-                self.isLoadingMore = false
-                // Pages can overlap when a new collection lands between requests; keep the first copy.
-                let known = Set(self.collections.map(\.id))
-                self.collections += response.items.filter { !known.contains($0.id) }
-                self.page = response.meta.currentPage
-                self.hasMore = response.hasMore
-            }
-            .store(in: &cancellables)
+    func filterChanged(_ newFilter: CashFilter) {
+        guard newFilter != filter else { return }
+        filter = newFilter
+        pager.load()
     }
 
     func statusFilterChanged(_ status: String?) {
         statusFilter = status
-        loadList(refresh: true)
+        pager.load()
     }
 
-    func rangeChanged(_ newRange: CashDateRange) {
-        range = newRange
-        loadList(refresh: true)
+    func refresh() {
+        pager.load(refresh: true)
     }
 
-    private func listPublisher(page: Int) -> AnyPublisher<PagedResponse<CashCollection>, Error> {
-        if access.canReviewAll {
-            return service.allCollections(range: range, staffIds: [], status: statusFilter, page: page)
-        }
-        return service.myCollections(range: range, page: page)
+    func loadMore() {
+        pager.loadMore()
+    }
+
+    private func fetch(page: Int) -> AnyPublisher<CashPage<CashCollection>, Error> {
+        let range = filter.dates()
+        let publisher = access.canReviewAll
+            ? service.allCollections(range: range, staffIds: filter.staffIds, status: statusFilter, page: page)
+            : service.myCollections(range: range, page: page)
+        return publisher
+            .map { CashPage(items: $0.items, meta: $0.meta) }
+            .eraseToAnyPublisher()
     }
 }

@@ -24,7 +24,7 @@ struct UtilityScreen: View {
                     title: "Utility",
                     onBack: { dismiss() },
                     onHome: onHome,
-                    onRefresh: {}
+                    onRefresh: nil
                 )
 
                 ScrollView {

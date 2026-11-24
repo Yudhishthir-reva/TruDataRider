@@ -2,87 +2,94 @@
 //  AdvanceDetailScreen.swift
 //  TrudataRider
 //
-//  One advance with every payment returned against it, plus the two actions a manager has: receive
-//  money back, and move the advance's status.
+//  Android `AdvanceDetailScreen` / `AdvanceDetailViewModel`: one advance with every payment
+//  returned against it, plus the two actions a manager has — receive money back, and change the
+//  advance's status.
 //
 
-import SwiftUI
 import Combine
+import SwiftUI
 
 final class AdvanceDetailViewModel: ObservableObject {
 
-    @Published var advance: Advance?
-    @Published var isLoading = false
-    @Published var loadError: String?
-    @Published var actionError: String?
-    @Published var successMessage: String?
-    @Published var isUpdatingStatus = false
-
     let access = CashAccess.current
+
+    @Published private(set) var advance: Advance?
+    @Published private(set) var isLoading = true
+    @Published private(set) var loadError: String?
+    @Published var showStatus = false
+    @Published private(set) var isUpdatingStatus = false
+    @Published var message: String?
+    @Published var error: String?
 
     private let advanceId: Int
     private let service = CashCollectionServiceManager()
     private var cancellables = Set<AnyCancellable>()
+    private var loadJob: AnyCancellable?
+    private var statusJob: AnyCancellable?
 
     init(advanceId: Int) {
         self.advanceId = advanceId
+        load()
+        // A payment received on the receive screen lands back here.
+        CashChange.publisher
+            .sink { [weak self] change in
+                guard change == .advance else { return }
+                self?.load()
+            }
+            .store(in: &cancellables)
     }
 
-    /// Money can still come back while the advance is pending, partial or on hold.
-    var canReceive: Bool {
-        access.canManageAdvance && (advance.map { AdvanceStatus.isOpen($0.status) } ?? false)
-    }
+    var isManager: Bool { access.canManageAdvance }
 
     func load() {
-        guard !isLoading else { return }
         isLoading = true
         loadError = nil
-
-        service.advanceDetail(id: advanceId)
+        loadJob = service.advanceDetail(id: advanceId)
             .receive(on: RunLoop.main)
             .sink { [weak self] completion in
-                guard let self else { return }
-                self.isLoading = false
-                if case .failure(let error) = completion {
-                    self.loadError = (error as? RequestError)?.errorString ?? error.localizedDescription
-                }
+                guard let self, case .failure(let failure) = completion else { return }
+                self.failed(CashError.message(failure))
             } receiveValue: { [weak self] response in
                 guard let self else { return }
-                self.isLoading = false
                 if let advance = response.data {
+                    self.isLoading = false
                     self.advance = advance
                 } else {
-                    self.loadError = response.message.isEmptyString
-                        ? "This advance could not be loaded." : response.message
+                    self.failed(CashError.server(response.message) ?? CashError.empty)
                 }
             }
-            .store(in: &cancellables)
     }
 
-    func updateStatus(to status: String) {
+    /// Keep what is on screen if a refresh fails; only an empty screen shows the error.
+    private func failed(_ message: String) {
+        isLoading = false
+        if advance == nil { loadError = message } else { error = message }
+    }
+
+    func setStatus(_ status: String) {
         guard !isUpdatingStatus else { return }
         isUpdatingStatus = true
-
-        service.updateAdvanceStatus(id: advanceId, status: status)
+        statusJob = service.updateAdvanceStatus(id: advanceId, status: status)
             .receive(on: RunLoop.main)
             .sink { [weak self] completion in
-                guard let self else { return }
+                guard let self, case .failure(let failure) = completion else { return }
                 self.isUpdatingStatus = false
-                if case .failure(let error) = completion {
-                    self.actionError = (error as? RequestError)?.errorString ?? error.localizedDescription
-                }
+                self.error = CashError.message(failure)
             } receiveValue: { [weak self] response in
                 guard let self else { return }
                 self.isUpdatingStatus = false
-                if let advance = response.data {
-                    self.advance = advance
-                    self.successMessage = "Status changed to \(AdvanceStatus.label(advance.status))."
-                } else {
-                    self.actionError = response.message.isEmptyString
-                        ? "The status could not be changed." : response.message
+                guard var updated = response.data else {
+                    self.error = CashError.server(response.message) ?? CashError.empty
+                    return
                 }
+                // update-status doesn't send the returns back; keep the ones already shown.
+                updated.returns = self.advance?.returns ?? []
+                self.advance = updated
+                self.showStatus = false
+                self.message = "Status set to \(AdvanceStatus.label(updated.status.isEmpty ? status : updated.status))"
+                CashChange.notify(.advance)
             }
-            .store(in: &cancellables)
     }
 }
 
@@ -90,171 +97,174 @@ struct AdvanceDetailScreen: View {
 
     @Environment(\.dismiss) private var dismiss
     @StateObject private var viewModel: AdvanceDetailViewModel
-    @State private var isReceiving = false
-    @State private var isPickingStatus = false
+    @State private var receiving = false
 
-    private let advanceId: Int
     var onHome: () -> Void
 
     init(advanceId: Int, onHome: @escaping () -> Void) {
-        self.advanceId = advanceId
         _viewModel = StateObject(wrappedValue: AdvanceDetailViewModel(advanceId: advanceId))
         self.onHome = onHome
     }
 
     var body: some View {
-        ZStack {
-            CcColors.page.ignoresSafeArea()
+        VStack(spacing: 0) {
+            SellersAppBar(
+                title: "Advance Details",
+                onBack: { dismiss() },
+                onHome: onHome,
+                onRefresh: { viewModel.load() }
+            )
 
-            VStack(spacing: 0) {
-                SellersAppBar(
-                    title: "Advance",
-                    onBack: { dismiss() },
-                    onHome: onHome,
-                    onRefresh: { viewModel.load() }
-                )
-
-                ScrollView {
-                    VStack(spacing: 10) {
-                        if viewModel.isLoading && viewModel.advance == nil {
-                            CcLoadingBlock()
-                        } else if let loadError = viewModel.loadError, viewModel.advance == nil {
-                            CcErrorState(message: loadError) { viewModel.load() }
-                        } else if let advance = viewModel.advance {
-                            hero(advance)
-                            details(advance)
-                            returnsSection(advance)
-                        }
-
-                        if viewModel.canReceive {
-                            Color.clear.frame(height: 80)
-                        }
-                    }
-                    .padding(12)
+            ScrollView {
+                VStack(spacing: 10) {
+                    content
                 }
+                .padding(12)
             }
-
-            if viewModel.canReceive {
-                VStack {
-                    Spacer()
-                    CcBottomActionBar {
-                        CcSecondaryButton(title: "Change status", systemImage: "arrow.triangle.2.circlepath") {
-                            isPickingStatus = true
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                if viewModel.isManager, let advance = viewModel.advance {
+                    CashActionTray {
+                        CashSecondaryButton(title: "Status", systemImage: "clock.arrow.circlepath") {
+                            viewModel.showStatus = true
                         }
-                        CcPrimaryButton(title: "Receive payment", systemImage: "arrow.uturn.left") {
-                            isReceiving = true
-                        }
+                        .containerRelativeFrame(.horizontal) { width, _ in (width - 42) * 0.8 / 2.2 }
+                        CashPrimaryButton(
+                            title: "Receive Payment",
+                            systemImage: "arrow.down.left",
+                            isEnabled: AdvanceStatus.isOpen(advance.status) && advance.outstanding > 0
+                        ) { receiving = true }
                     }
                 }
             }
         }
+        .background(CcColors.page.ignoresSafeArea())
         .navigationBarHidden(true)
-        .onAppear {
-            if viewModel.advance == nil {
-                viewModel.load()
+        .navigationDestination(isPresented: $receiving) {
+            if let advance = viewModel.advance {
+                ReceivePaymentScreen(advanceId: advance.id, onHome: onHome)
             }
         }
-        .sheet(isPresented: $isReceiving) {
-            ReceiveAdvanceForm(advanceId: advanceId) { viewModel.load() }
-        }
-        .confirmationDialog("Change status", isPresented: $isPickingStatus, titleVisibility: .visible) {
-            ForEach(AdvanceStatus.all, id: \.self) { status in
-                Button(AdvanceStatus.label(status)) { viewModel.updateStatus(to: status) }
-            }
-            Button("Cancel", role: .cancel) {}
-        }
-        .alert("Can't continue", isPresented: Binding(
-            get: { viewModel.actionError != nil },
-            set: { if !$0 { viewModel.actionError = nil } }
-        )) {
-            Button("OK", role: .cancel) { viewModel.actionError = nil }
-        } message: {
-            Text(viewModel.actionError ?? "")
-        }
-        .alert("Done", isPresented: Binding(
-            get: { viewModel.successMessage != nil },
-            set: { if !$0 { viewModel.successMessage = nil } }
-        )) {
-            Button("OK") { viewModel.successMessage = nil }
-        } message: {
-            Text(viewModel.successMessage ?? "")
-        }
-    }
-
-    private func hero(_ advance: Advance) -> some View {
-        CcHero {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 4) {
-                    CcHeroLabel(text: "Advance #\(advance.id)")
-                    Text(CashFormat.rupees(advance.amount))
-                        .font(.system(size: 28, weight: .heavy))
-                        .foregroundStyle(.white)
-                }
-                Spacer(minLength: 8)
-                CcPill(text: AdvanceStatus.label(advance.status), tone: .muted)
-            }
-
-            HStack(spacing: 12) {
-                CcHeroStat(label: "Returned", value: CashFormat.rupees(advance.returned))
-                CcHeroStat(label: "Outstanding", value: CashFormat.rupees(advance.outstanding))
+        .sheet(isPresented: $viewModel.showStatus) {
+            if let advance = viewModel.advance {
+                AdvanceStatusSheet(
+                    current: advance.status,
+                    title: "\(CashFormat.rupees(advance.amount)) to \(advance.person?.name ?? "staff") · due \(CashFormat.rupees(advance.outstanding))",
+                    isSaving: viewModel.isUpdatingStatus,
+                    onSave: { viewModel.setStatus($0) }
+                )
+                .cashErrorDialog($viewModel.error)
             }
         }
-    }
-
-    private func details(_ advance: Advance) -> some View {
-        CcSection(title: "Details", systemImage: "info.circle", accent: CcColors.info) {
-            VStack(spacing: 8) {
-                CcDetailRow(label: "Given to", value: advance.person?.name ?? "—")
-                if let role = advance.person?.role, !role.isEmptyString {
-                    CcDetailRow(label: "Role", value: role)
-                }
-                CcDetailRow(label: "Given by", value: advance.givenBy?.name ?? "—")
-                CcDetailRow(label: "Date", value: CashFormat.pretty(advance.date))
-                if let purpose = advance.purpose, !purpose.isEmptyString {
-                    CcDetailRow(label: "Purpose", value: purpose)
-                }
-            }
-        }
+        .cashToast($viewModel.message)
+        .cashErrorDialog($viewModel.error)
     }
 
     @ViewBuilder
-    private func returnsSection(_ advance: Advance) -> some View {
-        CcSection(title: "Payments returned", systemImage: "arrow.uturn.left") {
-            if advance.returns.isEmpty {
-                Text("Nothing has come back against this advance yet.")
-                    .font(.system(size: 13))
-                    .foregroundStyle(CcColors.textMuted)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-            } else {
-                VStack(spacing: 10) {
-                    ForEach(advance.returns) { entry in
-                        VStack(alignment: .leading, spacing: 3) {
-                            HStack {
-                                Text(CashFormat.rupees(entry.amount))
-                                    .font(.system(size: 14.5, weight: .bold))
-                                    .foregroundStyle(CcColors.text)
-                                Spacer()
-                                Text(CashFormat.pretty(entry.date))
-                                    .font(.system(size: 11.5))
-                                    .foregroundStyle(CcColors.textFaint)
-                            }
-                            if let name = entry.receivedBy?.name, !name.isEmpty {
-                                Text("Received by \(name)")
-                                    .font(.system(size: 11.5))
-                                    .foregroundStyle(CcColors.textMuted)
-                            }
-                            if let remark = entry.remark, !remark.isEmptyString {
-                                Text("“\(remark)”")
-                                    .font(.system(size: 12))
-                                    .foregroundStyle(CcColors.textMuted)
-                            }
-                        }
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(10)
-                        .background(CcColors.page, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-                    }
+    private var content: some View {
+        if let advance = viewModel.advance {
+            DetailHero(advance: advance)
+            CashSection(title: "Details", systemImage: "doc.text") {
+                CashDetailLine(label: "Given on", value: CashDates.pretty(advance.date))
+                CashDetailLine(label: "Purpose", value: advance.purpose?.nilIfEmpty ?? "—")
+                CashDetailLine(label: "Given by", value: advance.givenBy?.name ?? "—")
+                CashDetailLine(label: "Entered", value: advance.createdAt ?? "—")
+                if let attachment = advance.attachment?.nilIfEmpty {
+                    CashAttachmentLink(url: attachment)
                 }
             }
+            CashSection(
+                title: "Payments returned",
+                systemImage: "clock.arrow.circlepath",
+                subtitle: advance.returns.isEmpty
+                    ? nil
+                    : "\(advance.returns.count) payment\(advance.returns.count == 1 ? "" : "s") · \(CashFormat.rupees(advance.returns.reduce(0) { $0 + $1.amount }))",
+                accent: CcColors.ok
+            ) {
+                if advance.returns.isEmpty {
+                    Text("Nothing returned yet.")
+                        .font(.system(size: 13))
+                        .foregroundStyle(CcColors.textMuted)
+                }
+                let sorted = advance.returns.sorted { $0.date > $1.date }
+                ForEach(Array(sorted.enumerated()), id: \.element.id) { index, entry in
+                    if index > 0 { CcColors.divider.frame(height: 1) }
+                    ReturnLine(entry: entry)
+                }
+            }
+        } else if viewModel.isLoading {
+            CcLoadingBlock()
+        } else {
+            CashErrorState(message: viewModel.loadError ?? "Couldn't load this advance.") { viewModel.load() }
         }
+    }
+}
+
+private struct DetailHero: View {
+    let advance: Advance
+
+    var body: some View {
+        CashHero {
+            HStack {
+                CashHeroLabel(text: "Advance #\(advance.id)")
+                Spacer()
+                CashAdvanceStatusPill(status: advance.status)
+            }
+            Text(CashFormat.rupees(advance.amount))
+                .font(.system(size: 28, weight: .heavy))
+                .foregroundStyle(.white)
+            let who = [advance.person?.name, advance.person?.role?.nilIfEmpty].compactMap { $0 }.joined(separator: " · ")
+            Text(who.isEmpty ? "—" : who)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(.white.opacity(0.9))
+            // How much has come back, as a bar.
+            let fraction = advance.amount > 0 ? min(max(advance.returned / advance.amount, 0), 1) : 0
+            GeometryReader { proxy in
+                ZStack(alignment: .leading) {
+                    Color.white.opacity(0.18)
+                    CcColors.glow.frame(width: proxy.size.width * fraction).clipShape(RoundedRectangle(cornerRadius: 3))
+                }
+            }
+            .frame(height: 6)
+            .clipShape(RoundedRectangle(cornerRadius: 3))
+            .padding(.top, 8)
+            HStack(spacing: 8) {
+                CashHeroStat(label: "Returned", value: CashFormat.rupees(advance.returned))
+                CashHeroStat(label: "Outstanding", value: CashFormat.rupees(advance.outstanding))
+            }
+            .padding(.top, 6)
+        }
+    }
+}
+
+private struct ReturnLine: View {
+    let entry: AdvanceReturn
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 3) {
+            HStack(spacing: 8) {
+                Text("+ " + CashFormat.rupees(entry.amount))
+                    .font(.system(size: 15, weight: .heavy))
+                    .foregroundStyle(CcColors.ok)
+                Text(CashDates.pretty(entry.date))
+                    .font(.system(size: 12.5))
+                    .foregroundStyle(CcColors.textMuted)
+                Spacer()
+                if let name = entry.receivedBy?.name {
+                    Text("By \(name)")
+                        .font(.system(size: 12))
+                        .foregroundStyle(CcColors.textMuted)
+                }
+            }
+            if let remark = entry.remark?.nilIfEmpty {
+                Text(remark)
+                    .font(.system(size: 13))
+                    .foregroundStyle(CcColors.text)
+            }
+            if let attachment = entry.attachment?.nilIfEmpty {
+                CashAttachmentLink(url: attachment)
+            }
+        }
+        .padding(.vertical, 2)
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }

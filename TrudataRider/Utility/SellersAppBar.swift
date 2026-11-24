@@ -9,7 +9,9 @@ struct SellersAppBar: View {
     let title: String
     var onBack: () -> Void
     var onHome: () -> Void
-    var onRefresh: () -> Void
+    /// Nil hides the refresh button, for a form with nothing to reload (Android `AppBar` takes an
+    /// optional `onRefresh` the same way).
+    var onRefresh: (() -> Void)?
 
     var body: some View {
         HStack(spacing: 8) {
@@ -27,11 +29,13 @@ struct SellersAppBar: View {
 
             Spacer(minLength: 0)
 
-            Button(action: onRefresh) {
-                Image(systemName: "arrow.clockwise")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .frame(width: 34, height: 34)
+            if let onRefresh {
+                Button(action: onRefresh) {
+                    Image(systemName: "arrow.clockwise")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(.white)
+                        .frame(width: 34, height: 34)
+                }
             }
 
             Button(action: onHome) {

@@ -10,7 +10,12 @@
 import SwiftUI
 import Combine
 
-/// Watches API replies for the "token expired" message and ends the session when one arrives.
+/// Ends the session the moment the server says the token is no longer good.
+///
+/// Two things can say that, and the backend uses both: an HTTP 401 (Laravel's auth middleware,
+/// whose body is a bare `{"message": "Unauthenticated."}`), and a reply whose message spells the
+/// problem out. Only the second was being watched, so a plain 401 — the common case — left the
+/// user sitting on a screen whose every request was failing.
 @MainActor
 final class SessionManager: ObservableObject {
 
@@ -20,13 +25,52 @@ final class SessionManager: ObservableObject {
 
     private init() {}
 
-    /// Android checks for a message that mentions both "expired" and "token"; same test here so a
-    /// change on the server lands on both platforms at once.
-    func checkTokenExpiry(message: String?) {
+    /// Wordings that mean the token is done. Android tests for "expired" and "token" together;
+    /// that case is kept, with the other shapes this backend sends added beside it.
+    private static let expiryPhrases = [
+        "unauthenticated",
+        "unauthorized",
+        "token has expired",
+        "token expired",
+        "token is invalid",
+        "invalid token",
+        "token not provided",
+        "token could not be parsed"
+    ]
+
+    /// A 401 is reason enough on its own — the body doesn't have to say anything useful.
+    ///
+    /// `sentWith` is the Authorization header the failing request carried, so a slow reply to a
+    /// request made under an old token cannot sign out a session that has since been renewed.
+    func handleUnauthorized(sentWith authorization: String?) {
+        endSession(sentWith: authorization)
+    }
+
+    /// For replies that carry a message instead of a 401.
+    func checkTokenExpiry(message: String?, sentWith authorization: String? = nil) {
         guard let message else { return }
         let lower = message.lowercased()
-        guard lower.contains("expired"), lower.contains("token") else { return }
-        guard !UserDefaultManager.shared.getUserDefaultsString(key: .authToken).isEmptyString else { return }
+
+        let matches = Self.expiryPhrases.contains { lower.contains($0) }
+            // Android's original test, kept so a server-side change lands on both platforms.
+            || (lower.contains("expired") && lower.contains("token"))
+        guard matches else { return }
+
+        endSession(sentWith: authorization)
+    }
+
+    /// Clears the session and raises the blocked screen. Safe to call from several failing
+    /// requests at once — only the first one does anything.
+    private func endSession(sentWith authorization: String?) {
+        guard !isBlocked else { return }
+
+        // Nothing to end if the user is already signed out: a 401 on the login call itself is a
+        // wrong password, not an expired session, and must not throw up the blocked screen.
+        let current = UserDefaultManager.shared.authHeader["Authorization"] ?? ""
+        guard !current.isEmptyString else { return }
+
+        // A delayed response from an old login must not log out a newer session.
+        if let authorization, !authorization.isEmpty, authorization != current { return }
 
         UserDefaultManager.shared.resetUserData()
         isBlocked = true
